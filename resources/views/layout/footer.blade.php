@@ -230,4 +230,7 @@
          });
 
      })
+     $(document).ready(function() {
+         $('#branch_id').select2();
+     })
  </script>

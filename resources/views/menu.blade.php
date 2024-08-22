@@ -26,6 +26,7 @@
                     data-iq-delay=".4" data-iq-trigger="scroll" data-iq-ease="none">
                     <div class="card-header">
                         <div class="float-end">
+
                             <a class="btn btn-sm btn-outline-danger rounded-pill mt-2 ml-2" onclick="LoadPage()">
                                 <svg width="23" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                     <path opacity="0.4"
@@ -45,7 +46,16 @@
                             </a>
                         </div>
                         <h4 class="card-title">Dashboard</h4>
-                        <small>Welcome</small>
+                        <select id="branch_id" style="width: 200px" onchange="LoadPage()">
+                            @if (auth()->user()->fk_branch == 0)
+                                <option value="0" selected>All</option>
+                            @endif
+                            @foreach ($branch as $i)
+                                <option value="{{ $i->id }}"
+                                    {{ $i->id == auth()->user()->fk_branch ? 'selected' : '' }}>{{ $i->name }}
+                                </option>
+                            @endforeach
+                        </select>
                     </div>
                     <div class="card-body" data-iq-gsap="onStart" data-iq-opacity="0" data-iq-position-y="-40"
                         data-iq-duration=".6" data-iq-delay=".6" data-iq-trigger="scroll" data-iq-ease="none"
@@ -367,6 +377,9 @@
                             headers: {
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             },
+                            data: {
+                                branch_id: $('#branch_id').val()
+                            },
 
                             success: function(data) {
                                 $('#earn').attr('class', data.earn > 0 ? 'text-success' : 'text-danger')
@@ -500,7 +513,9 @@
                             headers: {
                                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
                             },
-
+                            data: {
+                                branch_id: $('#branch_id').val()
+                            },
                             success: function(data) {
                                 $('#hlp').html(data.cjp + "/" + data.cjl)
                                 $('#htp').html(parseFloat(data.cjl) + parseFloat(data.cjp))
@@ -669,7 +684,8 @@
                         url: "{{ url('getTopAgen') }}",
                         type: "POST",
                         data: {
-                            month: $('#month').val()
+                            month: $('#month').val(),
+                            branch_id: $('#branch_id').val()
                         }
 
                     },
@@ -743,6 +759,9 @@
                         },
                         url: "{{ url('get40Days') }}",
                         type: "POST",
+                        data: {
+                            branch_id: $('#branch_id').val()
+                        }
                     },
                     columns: columns,
                 });

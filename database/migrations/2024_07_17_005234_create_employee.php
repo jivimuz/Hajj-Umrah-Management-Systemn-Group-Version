@@ -52,6 +52,7 @@ return new class extends Migration
 
         $data = [
             [
+                'fk_branch' => 0,
                 'username' => "superadmin",
                 'email' => "test@test.com",
                 'email_verified_at' => now(),
@@ -61,6 +62,7 @@ return new class extends Migration
                 'access' => $b
             ],
             [
+                'fk_branch' => 1,
                 'username' => "user1",
                 'email' => "user1@test.com",
                 'email_verified_at' => now(),
@@ -70,6 +72,7 @@ return new class extends Migration
                 'access' => 1
             ],
             [
+                'fk_branch' => 1,
                 'username' => "user2",
                 'email' => "user2@test.com",
                 'email_verified_at' => now(),

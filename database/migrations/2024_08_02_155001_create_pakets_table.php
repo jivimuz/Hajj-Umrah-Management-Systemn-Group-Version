@@ -14,6 +14,7 @@ return new class extends Migration
     {
         Schema::create('m_paket', function (Blueprint $table) {
             $table->id();
+            $table->integer('fk_branch')->default(1);
             $table->string('nama')->length(100);
             $table->integer('program_id');
             $table->double('publish_price');

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Website;
 
 use App\Http\Controllers\Controller;
 use App\Models\Agen;
+use App\Models\Branch;
 use App\Models\Jamaah;
 use App\Models\Module;
 use App\Models\Payment;
@@ -15,7 +16,8 @@ class HomeController extends Controller
 {
     public function index()
     {
-        return view('menu');
+        $branch = $this->branch;
+        return view('menu', compact('branch'));
     }
 
     public function menu(Request $request)
@@ -26,10 +28,11 @@ class HomeController extends Controller
             return $query->where('name', 'like', "%$menu%");
         })->whereIn('id', $AccessList)->whereNotIn('route', ['', '#'])->where('isactive', true)->orderBy('group_id')->orderBy('list_no')->get();
         // dd($menuList);
+
         return view('layout/menuList', compact('menuList'));
     }
 
-    public function getJamaahUmrahInYear()
+    public function getJamaahUmrahInYear(Request $request)
     {
         $jl = [];
         $jp = [];
@@ -37,6 +40,7 @@ class HomeController extends Controller
 
         $cjl = 0;
         $cjp = 0;
+        // $request->branch_id;
 
         $earn = Payment::select(DB::raw('COALESCE(SUM(nominal), 0) as total'))->whereNull('void_by')->first()->total;
 
@@ -47,8 +51,12 @@ class HomeController extends Controller
                 ->where('gender', 'L')
                 ->where('m_paket.type', 'Umrah')
                 ->whereMonth('t_jamaah.created_at', sprintf('%02s', $i))
-                ->whereYear('t_jamaah.created_at', date('Y'))
-                ->first();
+                ->whereYear('t_jamaah.created_at', date('Y'));
+            if ($request->branch_id > 0) {
+                $cek->where('t_jamaah.fk_branch', $request->branch_id);
+            }
+
+            $cek = $cek->first();
 
             array_push($jl, ($cek ? $cek->total : 0));
             $cjl += ($cek ? $cek->total : 0);
@@ -59,8 +67,12 @@ class HomeController extends Controller
                 ->where('gender', 'P')
                 ->where('m_paket.type', 'Umrah')
                 ->whereMonth('t_jamaah.created_at', sprintf('%02s', $i))
-                ->whereYear('t_jamaah.created_at', date('Y'))
-                ->first();
+                ->whereYear('t_jamaah.created_at', date('Y'));
+            if ($request->branch_id > 0) {
+                $cek->where('t_jamaah.fk_branch', $request->branch_id);
+            }
+            $cek = $cek->first();
+
             array_push($jp, ($cek ? $cek->total : 0));
             $cjp += ($cek ? $cek->total : 0);
         }
@@ -71,7 +83,7 @@ class HomeController extends Controller
 
         return response()->json(["message" => 'success', 'jp' => $jp, 'jl' => $jl, 'tt' => $tt, 'cjl' => $cjl, 'cjp' => $cjp, 'earn' => $earn], 200);
     }
-    public function getJamaahHajiInYear()
+    public function getJamaahHajiInYear(Request $request)
     {
         $jl = [];
         $jp = [];
@@ -87,8 +99,11 @@ class HomeController extends Controller
                 ->where('gender', 'L')
                 ->where('m_paket.type', 'Haji')
                 ->whereMonth('t_jamaah.created_at', sprintf('%02s', $i))
-                ->whereYear('t_jamaah.created_at', date('Y'))
-                ->first();
+                ->whereYear('t_jamaah.created_at', date('Y'));
+            if ($request->branch_id > 0) {
+                $cek->where('t_jamaah.fk_branch', $request->branch_id);
+            }
+            $cek = $cek->first();
 
             array_push($jl, ($cek ? $cek->total : 0));
             $cjl += ($cek ? $cek->total : 0);
@@ -99,8 +114,11 @@ class HomeController extends Controller
                 ->where('gender', 'P')
                 ->where('m_paket.type', 'Haji')
                 ->whereMonth('t_jamaah.created_at', sprintf('%02s', $i))
-                ->whereYear('t_jamaah.created_at', date('Y'))
-                ->first();
+                ->whereYear('t_jamaah.created_at', date('Y'));
+            if ($request->branch_id > 0) {
+                $cek->where('t_jamaah.fk_branch', $request->branch_id);
+            }
+            $cek = $cek->first();
             array_push($jp, ($cek ? $cek->total : 0));
             $cjp += ($cek ? $cek->total : 0);
         }
@@ -121,21 +139,40 @@ class HomeController extends Controller
             DB::raw("(SELECT COALESCE(COUNT(id), 0) as tjamaah FROM t_jamaah where t_jamaah.agen_id = m_agen.id and month(t_jamaah.created_at) = '$month' and year(t_jamaah.created_at) = '$year') as tjamaah")
         ])
             ->havingRaw('tjamaah > 0')
-            ->orderBy('tjamaah', 'desc')->get(5);
+            ->orderBy('tjamaah', 'desc');
+
+        if ($request->branch_id > 0) {
+            $data->where('m_agen.fk_branch', $request->branch_id);
+        }
+        $data = $data->get(5);
 
         $income = Payment::select(DB::raw('COALESCE(SUM(nominal), 0) as total'))->where('nominal', '>=', 0)->whereYear('paid_at', $year)->whereNull('void_by')
-            ->whereMonth('paid_at', $month)->first()->total;
+            ->whereMonth('paid_at', $month);
+        if ($request->branch_id > 0) {
+            $income->where('t_payment.fk_branch', $request->branch_id);
+        }
+        $income = $income->first()->total;
 
         $expense = Payment::select(DB::raw('COALESCE(SUM(nominal), 0) as total'))->where('nominal', '<=', 0)->whereYear('paid_at', $year)->whereNull('void_by')
-            ->whereMonth('paid_at', $month)->first()->total;
+            ->whereMonth('paid_at', $month);
+        if ($request->branch_id > 0) {
+            $expense->where('t_payment.fk_branch', $request->branch_id);
+        }
+
+        $expense = $expense->first()->total;
 
         $total = Payment::select(DB::raw('COALESCE(SUM(nominal), 0) as total'))->whereYear('paid_at', $year)->whereNull('void_by')
-            ->whereMonth('paid_at', $month)->first()->total;
+            ->whereMonth('paid_at', $month);
+        if ($request->branch_id > 0) {
+            $total->where('t_payment.fk_branch', $request->branch_id);
+        }
+
+        $total = $total->first()->total;
 
         return response()->json(["message" => 'success', 'data' => $data, 'income' => $income, 'expense' => $expense, 'total' => $total], 200);
     }
 
-    public function get40Days()
+    public function get40Days(Request $request)
     {
         $data = Jamaah::select([
             't_jamaah.nama',
@@ -149,7 +186,14 @@ class HomeController extends Controller
                 Carbon::now()->startOfDay(),
                 Carbon::now()->addDays(40)->endOfDay()
             ])
-            ->orderBy('m_paket.flight_date', 'asc')->get();
+            ->orderBy('m_paket.flight_date', 'asc');
+
+        if ($request->branch_id > 0) {
+            $data->where('t_jamaah.fk_branch', $request->branch_id);
+        }
+
+        $data = $data->get();
+
         return response()->json(["message" => 'success', 'data' => $data], 200);
     }
 }

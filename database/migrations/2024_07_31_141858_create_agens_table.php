@@ -14,6 +14,7 @@ return new class extends Migration
     {
         Schema::create('m_agen', function (Blueprint $table) {
             $table->id();
+            $table->integer('fk_branch')->default(1);
             $table->string('kode_agen')->length(5);
             $table->string('nama')->length(50);
             $table->string('no_ktp')->length(16);
@@ -27,6 +28,7 @@ return new class extends Migration
 
         Agen::insert([
             [
+                'fk_branch' => 1,
                 "kode_agen" => 'TST',
                 "nama" => 'test',
                 "alamat" => 'Alamat test',

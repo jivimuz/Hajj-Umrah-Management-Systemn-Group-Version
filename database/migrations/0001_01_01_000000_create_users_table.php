@@ -17,6 +17,7 @@ return new class extends Migration
     {
         Schema::create('m_users', function (Blueprint $table) {
             $table->id();
+            $table->integer('fk_branch')->default(1);
             $table->string('username')->unique();
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
@@ -53,8 +54,6 @@ return new class extends Migration
 
             $table->foreign('user_id')->references('id')->on('m_users');
         });
-
-       
     }
 
     /**
