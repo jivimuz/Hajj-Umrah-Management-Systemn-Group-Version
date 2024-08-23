@@ -10,12 +10,13 @@ abstract class Controller
 
     public function __construct()
     {
-
-        if (auth()->user()->fk_branch == 0) {
-            $branch = Branch::all();
-        } else {
-            $branch = Branch::where('id', auth()->user()->fk_branch)->get();
+        if (auth()->user()) {
+            if (auth()->user()->fk_branch == 0) {
+                $branch = Branch::all();
+            } else {
+                $branch = Branch::where('id', auth()->user()->fk_branch)->get();
+            }
+            $this->branch = $branch;
         }
-        $this->branch = $branch;
     }
 }

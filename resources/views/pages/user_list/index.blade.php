@@ -63,12 +63,27 @@
                     <div class="card-body" data-iq-gsap="onStart" data-iq-opacity="0" data-iq-position-y="-40"
                         data-iq-duration=".6" data-iq-delay=".6" data-iq-trigger="scroll" data-iq-ease="none"
                         style="padding-left: 40px; padding-right:40px">
-
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label class="form-label">Office: </label>
+                                <select id="branch_id" style="width: 200px" onchange="getList()">
+                                    @if (auth()->user()->fk_branch == 0)
+                                        <option value="0" selected>All</option>
+                                    @endif
+                                    @foreach ($branch as $i)
+                                        <option value="{{ $i->id }}"
+                                            {{ $i->id == auth()->user()->fk_branch ? 'selected' : '' }}>{{ $i->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                        </div>
                         <div class="table-responsive">
                             <table class="table table-striped" id="main-table">
                                 <thead>
                                     <tr>
                                         <th>No</th>
+                                        <th>Office</th>
                                         <th>Name</th>
                                         <th>Designation</th>
                                         <th>Department</th>
@@ -106,6 +121,9 @@
                         return `${noD++}.`
                     },
                     className: 'text-center'
+                },
+                {
+                    data: "branch",
                 },
                 {
                     data: "fullname",
@@ -162,7 +180,9 @@
                     },
                     url: "{{ url('users/getList') }}",
                     type: "POST",
-                    data: {}
+                    data: {
+                        branch_id: $('#branch_id').val()
+                    }
 
                 },
                 columns: columns,

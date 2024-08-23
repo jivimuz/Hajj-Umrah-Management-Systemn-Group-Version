@@ -42,13 +42,29 @@
                     <div class="card-body" data-iq-gsap="onStart" data-iq-opacity="0" data-iq-position-y="-40"
                         data-iq-duration=".6" data-iq-delay=".6" data-iq-trigger="scroll" data-iq-ease="none"
                         style="padding-left: 40px; padding-right:40px">
-                        <div class="col-md-3">
-                            <label for="">Type</label>
-                            <select id="typeMod" class="form-control" onchange="getList()">
-                                <option value="" selected>All</option>
-                                <option value="Umrah">Umrah</option>
-                                <option value="Haji">Haji</option>
-                            </select>
+                        <div class="row">
+                            <div class="col-md-3">
+                                <label class="">Office: </label>
+                                <select id="branch_id" style="width: 100%" onchange="getList()">
+                                    @if (auth()->user()->fk_branch == 0)
+                                        <option value="0" selected>All</option>
+                                    @endif
+                                    @foreach ($branch as $i)
+                                        <option value="{{ $i->id }}"
+                                            {{ $i->id == auth()->user()->fk_branch ? 'selected' : '' }}>{{ $i->name }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                            </div>
+                            <div class="col-md-3">
+                                <label for="">Type</label>
+                                <select id="typeMod" class="form-control" style="width: 100%" onchange="getList()">
+                                    <option value="" selected>All</option>
+                                    <option value="Umrah">Umrah</option>
+                                    <option value="Haji">Haji</option>
+                                </select>
+                            </div>
+
                         </div>
 
                         <div class="table-responsive">
@@ -56,6 +72,7 @@
                                 <thead>
                                     <tr>
                                         <th>No</th>
+                                        <th>Office</th>
                                         <th>Name</th>
                                         <th>Type</th>
                                         <th>Program</th>
@@ -96,6 +113,9 @@
                         return `${noD++}.`
                     },
                     className: 'text-center'
+                },
+                {
+                    data: "branch",
                 },
                 {
                     data: "nama",
@@ -180,7 +200,8 @@
                     url: "{{ url('paket/getList') }}",
                     type: "POST",
                     data: {
-                        type: $('#typeMod').val()
+                        type: $('#typeMod').val(),
+                        branch_id: $('#branch_id').val(),
                     }
 
                 },

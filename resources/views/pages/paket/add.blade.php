@@ -76,9 +76,23 @@
                 </select>
             </div>
         </div>
+
         <div class="col-md-6">
             <label for="">Image: </label>
             <input type="file" accept="image/*" class=" dropify" id="attachment" name="attachment[]">
+        </div>
+
+        <div class="col-md-6">
+            <label class="form-label">Branch Office: <span class="text-danger">*</span></label>
+            <select id="fk_branch" class="form-control" style="width: 100%" name="fk_branch" required>
+                @if (auth()->user()->fk_branch == 0)
+                    <option value="0">All</option>
+                @endif
+                @foreach ($branch as $i)
+                    <option value="{{ $i->id }}">{{ $i->name }}
+                    </option>
+                @endforeach
+            </select>
         </div>
 
 

@@ -157,6 +157,20 @@
                             </div>
                         </div>
                         <div class="col-md-6">
+                            <label class="form-label">Branch Office: <span class="text-danger">*</span></label>
+                            <select id="fk_branch" class="form-control required" style="width: 100%"
+                                name="fk_branch">
+                                @if (auth()->user()->fk_branch == 0)
+                                    <option value="0" {{ $user->fk_branch == 0 ? 'selected' : '' }}>All</option>
+                                @endif
+                                @foreach ($branch as $i)
+                                    <option value="{{ $i->id }}"
+                                        {{ $i->id == $user->fk_branch ? 'selected' : '' }}>{{ $i->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="col-md-6">
                             <div class="form-group">
                                 <label class="form-label">Job Level: <span class="text-danger">*</span></label>
                                 <select class="form-control select2modal required" id="fk_joblevel"

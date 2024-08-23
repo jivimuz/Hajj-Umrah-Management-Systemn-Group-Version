@@ -54,25 +54,20 @@
                         <h4 class="card-title">Payment</h4>
                         <small>List of Payment History</small>
                     </div>
-                    <div class="row p-4">
 
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label for="">Income (Per-Month)</label>
-                                <h4 id="income" class="text-success">Rp.</h4>
-                            </div>
-                        </div>
-                        <div class="col-md-2">
-                            <div class="form-group">
-                                <label for="">Expense (Per-Month)</label>
-                                <h4 id="expense" class="text-danger">Rp.</h4>
-                            </div>
-                        </div>
+                    <div class="row" style="padding-left: 25px;padding-right:25px">
                         <div class="col-md-3">
-                            <div class="form-group">
-                                <label for="">Total (Per-Month)</label>
-                                <h4 id="ttotal" style="text-decoration-line: underline">Rp.</h4>
-                            </div>
+                            <label class="">Office: </label>
+                            <select id="branch_id" style="width: 100%" onchange="getList()">
+                                @if (auth()->user()->fk_branch == 0)
+                                    <option value="0" selected>All</option>
+                                @endif
+                                @foreach ($branch as $i)
+                                    <option value="{{ $i->id }}"
+                                        {{ $i->id == auth()->user()->fk_branch ? 'selected' : '' }}>{{ $i->name }}
+                                    </option>
+                                @endforeach
+                            </select>
                         </div>
                         <div class="col-md-3">
                             <div class="form-group">
@@ -101,7 +96,28 @@
                                 </p>
                             </div>
                         </div>
+                    </div>
+                    <div class="row" style="padding-left: 25px;padding-right:25px">
 
+                        {{-- <div class="col-md-3"></div> --}}
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="">Income (Per-Month)</label>
+                                <h4 id="income" class="text-success">Rp.</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="">Expense (Per-Month)</label>
+                                <h4 id="expense" class="text-danger">Rp.</h4>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="form-group">
+                                <label for="">Total (Per-Month)</label>
+                                <h4 id="ttotal" style="text-decoration-line: underline">Rp.</h4>
+                            </div>
+                        </div>
                     </div>
                     <div class="card-body" data-iq-gsap="onStart" data-iq-opacity="0" data-iq-position-y="-40"
                         data-iq-duration=".6" data-iq-delay=".6" data-iq-trigger="scroll" data-iq-ease="none"
@@ -112,8 +128,8 @@
                             <table class="table table-striped" id="main-table">
                                 <thead>
                                     <tr>
-                                        <th>No</th>
                                         <th>Paid at</th>
+                                        <th>Office</th>
                                         <th>Name</th>
                                         <th>Paket</th>
                                         <th>remark</th>
@@ -147,17 +163,11 @@
         })
 
         function getList() {
-            let noD = 1
             const columns = [{
-                    data: "id",
-                    render: function(data, b, c) {
-
-                        return `${noD++}.`
-                    },
-                    className: 'text-center'
+                    data: "paid_at",
                 },
                 {
-                    data: "paid_at",
+                    data: "branch",
                 },
                 {
                     data: "jamaah",
@@ -251,7 +261,8 @@
                     url: "{{ url('payment/getList') }}",
                     type: "POST",
                     data: {
-                        month: $('#month').val()
+                        month: $('#month').val(),
+                        branch_id: $('#branch_id').val(),
                     }
 
                 },

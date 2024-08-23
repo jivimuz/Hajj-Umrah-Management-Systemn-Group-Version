@@ -13,7 +13,6 @@ return new class extends Migration
     {
         Schema::create('t_jamaah', function (Blueprint $table) {
             $table->id();
-            $table->integer('fk_branch')->default(1);
             $table->integer('agen_id');
             $table->string('nama');
             $table->string('born_place')->nullable();

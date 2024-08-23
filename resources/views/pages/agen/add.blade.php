@@ -1,19 +1,31 @@
 <div class="row">
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="form-group">
             <label for="">Kode Agen : <span class="text-danger">*</span></label>
             <input type="text" class="form-control" value="{{ $top }}" id="kode_agen"
                 onkeypress="return event.charCode != 32" placeholder="Kode Agen (Max 5 Digit)" maxlength=5>
         </div>
     </div>
-    <div class="col-md-4">
+    <div class="col-md-3">
         <div class="form-group">
             <label for="">Nama Agen: <span class="text-danger">*</span></label>
             <input type="text" class="form-control" id="nama_agen" placeholder="Nama Agen" maxlength="50">
         </div>
     </div>
 
-    <div class="col-md-4">
+    <div class="col-md-3">
+        <label class="form-label">Branch Office: <span class="text-danger">*</span></label>
+        <select id="fk_branch" class="form-control" style="width: 100%" name="fk_branch">
+            @if (auth()->user()->fk_branch == 0)
+                <option value="0">All</option>
+            @endif
+            @foreach ($branch as $i)
+                <option value="{{ $i->id }}">{{ $i->name }}
+                </option>
+            @endforeach
+        </select>
+    </div>
+    <div class="col-md-3">
         <div class="form-group">
             <label for="">No Ktp Agen: <span class="text-danger">*</span></label>
             <input type="text" class="form-control" inputmode="numeric" pattern="[0-9]"
@@ -118,6 +130,7 @@
                 nama_bank: $('#nama_bank').val(),
                 no_rek: $('#no_rek').val(),
                 is_active: $('#is_active').val(),
+                fk_branch: $('#fk_branch').val(),
             },
             success: function(data) {
                 Toast.fire({

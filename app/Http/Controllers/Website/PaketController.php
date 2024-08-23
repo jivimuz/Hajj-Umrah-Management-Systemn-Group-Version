@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Website;
 
 use App\Http\Controllers\Controller;
+use App\Models\Branch;
 use App\Models\Jamaah;
 use App\Models\Paket;
 use App\Models\Program;
@@ -13,7 +14,8 @@ class PaketController extends Controller
 {
     public function index()
     {
-        return view('pages/paket/index');
+        $branch = $this->branch;
+        return view('pages/paket/index',  compact('branch'));
     }
 
     public function getList(Request $request)
@@ -22,20 +24,29 @@ class PaketController extends Controller
         $data = Paket::select([
             'm_paket.*',
             'm_program.nama as program',
+            'm_branch.name as branch',
             DB::raw("(SELECT COALESCE(COUNT(t_jamaah.id),0) AS total FROM t_jamaah WHERE t_jamaah.paket_id = m_paket.id) as total")
         ])
             ->join('m_program', 'm_program.id', 'm_paket.program_id')
+            ->join('m_branch', "m_branch.id", "m_paket.fk_branch")
             ->when($type, function ($q) use ($type) {
                 return $q->where('type', $type);
             })
-            ->orderBy('id', 'desc')->get();
+            ->orderBy('id', 'desc');
+
+        if ($request->branch_id > 0) {
+            $data->where('m_paket.fk_branch', $request->branch_id);
+        }
+
+        $data = $data->get();
         return response()->json(["message" => 'success', 'data' => $data], 200);
     }
 
     public function add()
     {
         $program = Program::get();
-        return view('pages/paket/add', compact('program'));
+        $branch = $this->branch;
+        return view('pages/paket/add', compact('program', 'branch'));
     }
 
     public function saveData(Request $request)
@@ -63,6 +74,7 @@ class PaketController extends Controller
             $insert = Paket::insert([
                 'nama' => $request->nama_paket,
                 'program_id' => $program_id,
+                'fk_branch' => $request->fk_branch,
                 'publish_price' => $request->publish_price,
                 'basic_price' => $request->basic_price,
                 'flight_date' => $request->flight_date,
@@ -93,8 +105,9 @@ class PaketController extends Controller
         $total = Jamaah::select(DB::raw('COALESCE(COUNT(id), 0) AS total'))
             ->where('paket_id', $request->id)
             ->first();
+        $branch = $this->branch;
 
-        return view('pages/paket/edit', compact('data', 'id', 'program', 'total'));
+        return view('pages/paket/edit', compact('data', 'id', 'program', 'total', 'branch'));
     }
 
     public function updateData(Request $request)
@@ -129,6 +142,7 @@ class PaketController extends Controller
             $update = Paket::where('id', $request->id)->update([
                 'nama' => $request->nama_paket,
                 'program_id' => $program_id,
+                'fk_branch' => $request->fk_branch,
                 'publish_price' => $request->publish_price,
                 'basic_price' => $request->basic_price,
                 'flight_date' => $request->flight_date,

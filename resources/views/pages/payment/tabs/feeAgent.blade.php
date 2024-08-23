@@ -2,20 +2,28 @@
 <div class="row">
     <div class="col-md-4">
         <div class="form-group">
+            <input type="number" hidden id="jamaah" value="0">
+            <div class="form-group">
+                <label class="">Branch Office: <span class="text-danger">*</span></label>
+                <select id="fk_branch" class="form-control" style="width: 100%" name="fk_branch" required>
+                    @foreach ($branch as $i)
+                        <option value="{{ $i->id }}" {{ auth()->user()->fk_branch == $i->id ? 'selected' : '' }}>
+                            {{ $i->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
+        </div>
+        <div class="form-group">
             <label for="">Nama Agen: <span class="text-danger">*</span></label>
             <select id="agen" class="form-control select2modal " style="width: 100%">
-                <option value="" disabled selected>Select</option>
-                @foreach ($agen as $i)
-                    <option value="{{ $i->id }}" jname="{{ $i->nama }}">Nama: {{ $i->nama }} ||
-                        KTP:
-                        {{ $i->no_ktp }}</option>
-                @endforeach
+                <option value="" disabled selected>Choose One</option>
             </select>
         </div>
         <div class="form-group isHide" hidden>
             <label for="">Nominal Fee: <span class="text-danger">*</span></label>
             <input type="number" class="form-control" id="nominal" onkeypress="noMinus(this)"
-                placeholder="Nominal Refund" inputmode="numeric" maxlength="50">
+                placeholder="Nominal Pencairan" inputmode="numeric" maxlength="50">
         </div>
         <div class="form-group isHide" hidden>
             <label for="">Remark: <span class="text-danger">*</span></label>
@@ -102,6 +110,67 @@
         dropdownParent: $('#ThisModal'),
         tags: true
     })
+    $(document).ready(function() {
+        getAgenList()
+    })
+
+    function getAgenList() {
+
+        $('#agen').select2({
+            ajax: {
+                url: "<?= url('jamaah/getAgenList') ?>",
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                delay: 250,
+                datatype: 'json',
+                data: function(params) {
+                    return {
+                        paramsVal: $('#agen').val(),
+                        paramsTitle: $('#agen option:selected').html(),
+                        paramsPrice: $('#agen').attr('price'),
+                        fk_branch: $('#fk_branch').val(),
+                        params: params.term
+                    }
+                },
+                processResults: function(response) {
+                    var option = [];
+
+                    for (data of response.data) {
+                        if (data.id == response.val) {
+                            ckv = true;
+                        }
+                        var fdate = new Date(data.flight_date);
+                        let dOptions = {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric'
+                        };
+
+
+                        option.push({
+                            text: data.nama,
+                            id: data.id,
+                        })
+
+                    }
+
+
+                    return {
+                        results: option
+                    };
+                },
+                minimumInputLength: 2
+            },
+            dropdownParent: $('#ThisModal')
+        })
+    }
+
+
+    $('#fk_branch').change(function() {
+        $('#agen').html(`<option value="" disabled selected>Choose One</option>`);
+    })
 
     $('#agen').on('change', function() {
         $('.isHide').attr('hidden', false)
@@ -118,18 +187,28 @@
 
             {
                 data: "paket",
+                render: function(data, b, c) {
+                    return data ?? "Belum Ada Paket"
+                },
             },
             {
                 data: "tjamaah",
+                render: function(data, b, c) {
+                    return data ?? 0
+                },
             },
 
             {
                 data: "fee",
                 render: function(data, b, c) {
-                    return (parseFloat(data) + parseFloat(c.paidFee)).toLocaleString("id-ID", {
-                        style: "currency",
-                        currency: "IDR"
-                    });
+                    if (data) {
+                        return (parseFloat(data) + parseFloat(c.paidFee)).toLocaleString("id-ID", {
+                            style: "currency",
+                            currency: "IDR"
+                        });
+                    }
+                    return 0
+
                 },
             },
         ]
@@ -155,13 +234,14 @@
             initComplete: function(settings, json) {
                 let tfee = 0;
                 json.data.map((item) => {
-                    tfee = parseFloat(tfee) + (parseFloat(item.fee) + parseFloat(item
-                        .paidFee))
+                    tfee = parseFloat(tfee ?? 0) + (parseFloat(item.fee ?? 0) + parseFloat(
+                        item.paidFee ?? 0))
                 })
-                $('#unpaid').val(tfee.toLocaleString("id-ID", {
-                    style: "currency",
-                    currency: "IDR"
-                }))
+                $('#unpaid').val((tfee < 0 ? "Kelebihan Pencairan : " : '') + tfee.toLocaleString(
+                    "id-ID", {
+                        style: "currency",
+                        currency: "IDR"
+                    }))
 
 
             },
@@ -220,10 +300,11 @@
     })
 
     function pushData() {
+        var fk_branch = $('#fk_branch').val()
         var is_refund = $('#is_refund').val()
         var nominal = $('#nominal').val()
         var agen_id = $('#agen').val()
-        var agen_name = $("#agen option:selected").attr('jname');
+        var agen_name = $('#agen option:selected').html();
         var remark = $('#remark').val()
 
         if (!nominal || !agen_id || !agen_name || !remark) {
@@ -245,6 +326,7 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             data: {
+                fk_branch: fk_branch,
                 is_refund: is_refund,
                 agen_id: agen_id,
                 agen_name: agen_name,

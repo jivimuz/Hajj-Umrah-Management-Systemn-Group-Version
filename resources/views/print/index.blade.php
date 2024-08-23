@@ -50,6 +50,20 @@
                             </div>
                             <div class="col-lg-3">
                                 <div class="form-group">
+                                    <label class="">Branch Office: <span class="text-danger">*</span></label>
+                                    <select id="fk_branch" class="form-control select2" style="width: 100%" name="fk_branch"
+                                        required>
+                                        @foreach ($branch as $i)
+                                            <option value="{{ $i->id }}"
+                                                {{ auth()->user()->fk_branch == $i->id ? 'selected' : '' }}>
+                                                {{ $i->name }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
                                     <label for="">Jamaah Name</label>
                                     <select class="select2" id="jamaah" style="width: 100%">
                                         <option value="" selected disabled>Choose One</option>
@@ -101,48 +115,60 @@
 @section('script')
     <script>
         $('.select2').select2();
-        $('#jamaah').select2({
-            ajax: {
-                url: "<?= url('jamaah/jamaahListByParams') ?>",
-                method: 'POST',
-                headers: {
-                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
-                },
-                delay: 500,
-                datatype: 'json',
-                minimumInputLength: 2,
-                data: function(params) {
-                    var selectTitle = $('#jamaah option:selected').html()
-                    var selectVal = $('#jamaah option:selected').val()
-                    return {
-                        selectTitle: selectTitle,
-                        selectVal: selectVal,
-                        params: params.term
-                    }
-                },
-                processResults: function(response) {
-                    var option = [];
-                    if (response.selectVal) {
-                        option.push({
-                            text: response.selectTitle,
-                            id: response.selectVal,
-                            selected: true
-                        })
-                    }
-                    for (data of response.data) {
-                        if (btoa(data.id) != response.selectVal) {
+        $(document).ready(function() {
+            getJamaahList()
+        })
+
+        function getJamaahList() {
+            $('#jamaah').select2({
+                ajax: {
+                    url: "<?= url('jamaah/jamaahListByParams') ?>",
+                    method: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    delay: 500,
+                    datatype: 'json',
+                    minimumInputLength: 2,
+                    data: function(params) {
+                        var selectTitle = $('#jamaah option:selected').html()
+                        var selectVal = $('#jamaah option:selected').val()
+                        return {
+                            fk_branch: $('#fk_branch').val(),
+                            selectTitle: selectTitle,
+                            selectVal: selectVal,
+                            params: params.term
+                        }
+                    },
+                    processResults: function(response) {
+                        var option = [];
+                        if (response.selectVal) {
                             option.push({
-                                text: data.nama + ' || ' + data.no_ktp,
-                                id: btoa(data.id),
+                                text: response.selectTitle,
+                                id: response.selectVal,
+                                selected: true
                             })
                         }
-                    }
-                    return {
-                        results: option
-                    };
+                        for (data of response.data) {
+                            if (btoa(data.id) != response.selectVal) {
+                                option.push({
+                                    text: data.nama + ' || ' + data.no_ktp,
+                                    id: btoa(data.id),
+                                })
+                            }
+                        }
+                        return {
+                            results: option
+                        };
+                    },
+                    placeholder: 'get Jamaah',
                 },
-                placeholder: 'get Jamaah',
-            },
+            })
+        }
+
+        $('#fk_branch').change(function() {
+            $('#jamaah').html(`<option value="" disabled selected>Choose One</option>`);
+            getJamaahList()
         })
 
         $('#printType').on('change', function() {

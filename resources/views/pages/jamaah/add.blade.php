@@ -8,27 +8,30 @@
             </div>
         </div>
         <div class="col-md-3">
+            <label class="">Branch Office: <span class="text-danger">*</span></label>
+            <select id="fk_branch" class="form-control" style="width: 100%" name="fk_branch" required>
+                @foreach ($branch as $i)
+                    <option value="{{ $i->id }}" {{ auth()->user()->fk_branch == $i->id ? 'selected' : '' }}>
+                        {{ $i->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-3">
             <div class="form-group">
                 <label for="">Paket: <span class="text-danger">*</span></label>
                 <select id="paket" name="paket" class="form-control select2modal " style="width: 100%" required>
-                    <option value="" disabled selected>Select</option>
-                    @foreach ($paket as $i)
-                        <option value="{{ $i->id }}" price="{{ $i->publish_price }}">
-                            ☪️ {{ strlen($i->nama) > 20 ? substr($i->nama, 0, 20) . '...' : $i->nama }} ||
-                            🕌 {{ $i->program }}
-                            || 🛫 {{ date('d M Y', strtotime($i->flight_date)) }}
-                        </option>
-                    @endforeach
+                    <option value="" disabled selected>Choose One</option>
                 </select>
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3">
             <div class="form-group">
                 <label for="">Discount: (Rp.)</label>
                 <input type="number" class="form-control" id="discount" name="discount" value="0" disabled>
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3">
             <div class="form-group">
                 <label for="">L/P: <span class="text-danger">*</span></label>
                 <select id="gender" name="gender" class="form-control select2modal " style="width: 100%" required>
@@ -38,7 +41,7 @@
                 </select>
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3">
             <div class="form-group">
                 <label for="">No Ktp : <span class="text-danger">*</span></label>
                 <input type="number" class="form-control" inputmode="numeric" onchange="noMinus(this)" id="noktp"
@@ -95,39 +98,6 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="form-group">
-                <label for="">Vaccine 3</label>
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control" placeholder="..." id="vaccine3" name="vaccine3">
-                    <input type="date" class="form-control" id="vaccine3_date" name="vaccine3_date">
-                </div>
-            </div>
-        </div>
-
-        <div class="col-md-3">
-            <div class="form-group">
-                <label for="">Agen yang mendaftarkan: <span class="text-danger">*</span></label>
-                <select id="agen_id" name="agen_id" class="form-control select2modal " style="width: 100%"
-                    required>
-                    <option value="" selected>Select</option>
-                    <option value="0">No Agent</option>
-                    @foreach ($agen as $i)
-                        <option value="{{ $i->id }}">
-                            {{ $i->nama }} || {{ $i->no_ktp }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-        </div>
-
-
-        <div class="col-md-6">
-            <div class="form-group">
-                <label for="">Alamat : </label>
-                <textarea id="alamat" name="alamat" class="form-control" maxlength="200" rows="4" placeholder="Alamat"></textarea>
-            </div>
-        </div>
         <div class="col-md-6">
 
             <div class="row">
@@ -162,9 +132,25 @@
 
             </div>
         </div>
-        <div class="col-md-6">
-            <label for="">Image: </label>
-            <input type="file" accept="image/*" class=" dropify " id="attachment" name="attachment[]">
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="">Vaccine 3</label>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control" placeholder="..." id="vaccine3" name="vaccine3">
+                    <input type="date" class="form-control" id="vaccine3_date" name="vaccine3_date">
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="">Agen yang mendaftarkan: <span class="text-danger">*</span></label>
+                <select id="agen_id" name="agen_id" class="form-control select2modal " style="width: 100%"
+                    required>
+                    <option value="" selected>Choose One</option>
+                    <option value="0">No Agent</option>
+                </select>
+            </div>
         </div>
         @if ($isHaji)
             <div class="col-md-6">
@@ -195,8 +181,21 @@
                 </div>
             </div>
         @endif
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="">Alamat : </label>
+                <textarea id="alamat" name="alamat" class="form-control" maxlength="200" rows="4" placeholder="Alamat"></textarea>
+            </div>
+        </div>
+
+        <div class="col-md-6">
+            <label for="">Image: </label>
+            <input type="file" accept="image/*" class=" dropify " id="attachment" name="attachment[]">
+        </div>
+
 
     </div>
+    <br>
     <div class="float-end">
         <a class="btn btn-sm btn-outline-warning rounded-pill" onclick="closeModal('ThisModal')">
 
@@ -230,11 +229,148 @@
     $('.select2modal').select2({
         dropdownParent: $('#ThisModal')
     });
+    var isHaji = <?= $isHaji ? 1 : 0 ?>
+
+    $(document).ready(function() {
+        getSelectList()
+    })
+
+    function getSelectList() {
+        $('#paket').select2({
+            ajax: {
+                url: "<?= url('jamaah/getPaketList') ?>",
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                delay: 250,
+                datatype: 'json',
+                data: function(params) {
+                    return {
+                        paramsVal: $('#paket').val(),
+                        paramsTitle: $('#paket option:selected').html(),
+                        paramsPrice: $('#paket').attr('price'),
+                        fk_branch: $('#fk_branch').val(),
+                        isHaji: isHaji,
+                        params: params.term
+                    }
+                },
+                processResults: function(response) {
+                    var option = [];
+                    let ckv = false;
+                    for (data of response.data) {
+                        if (data.id == response.val) {
+                            ckv = true;
+                        }
+                        var fdate = new Date(data.flight_date);
+                        let dOptions = {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric'
+                        };
+
+
+                        option.push({
+                            text: "☪️ " + (data.nama.length > 20 ? data.nama.substring(0, 20) +
+                                    "..." : data
+                                    .nama) + " || 🕌" + data.program + " || 🛫" + fdate
+                                .toLocaleDateString('en-GB', dOptions),
+                            id: data.id,
+                            price: data.publish_price,
+                        })
+
+                    }
+
+                    if (!ckv) {
+                        option.push({
+                            text: response.title,
+                            id: response.val,
+                            price: response.price,
+                        })
+                    }
+                    return {
+                        results: option
+                    };
+                },
+                minimumInputLength: 2
+            },
+            dropdownParent: $('#ThisModal')
+        })
+
+        $('#agen_id').select2({
+            ajax: {
+                url: "<?= url('jamaah/getAgenList') ?>",
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                delay: 250,
+                datatype: 'json',
+                data: function(params) {
+                    return {
+                        paramsVal: $('#agen_id').val(),
+                        paramsTitle: $('#agen_id option:selected').html(),
+                        paramsPrice: $('#agen_id').attr('price'),
+                        fk_branch: $('#fk_branch').val(),
+                        params: params.term
+                    }
+                },
+                processResults: function(response) {
+                    var option = [];
+                    let ckv = false;
+
+                    option.push({
+                        text: "No Agent / Independent",
+                        id: 0,
+                    })
+
+                    for (data of response.data) {
+                        if (data.id == response.val || response.val == 0) {
+                            ckv = true;
+                        }
+                        var fdate = new Date(data.flight_date);
+                        let dOptions = {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric'
+                        };
+
+
+                        option.push({
+                            text: data.nama,
+                            id: data.id,
+                        })
+
+                    }
+
+                    if (!ckv) {
+                        option.push({
+                            text: response.title,
+                            id: response.val,
+                        })
+                    }
+                    return {
+                        results: option
+                    };
+                },
+                minimumInputLength: 2
+            },
+            dropdownParent: $('#ThisModal')
+        })
+    }
 
     $('.dropify').dropify();
-    $('#paket').change(function() {
-        var max = $("#paket option:selected").attr('price');
-        console.log(max)
+
+    $('#fk_branch').change(function() {
+        $('#paket').html(`<option value="" disabled selected>Choose One</option>`);
+        $('#agen_id').html(`<option value="" disabled selected>Choose One</option>`);
+        getSelectList()
+    })
+
+    $('#paket').on('select2:select', function(e) {
+        $('#paket').attr('price', e.params.data.price)
+        var max = e.params.data.price
+        console.log(e.params.data)
         if (parseFloat($('#discount').val()) > parseFloat(max)) {
             $('#discount').val(max)
         }
@@ -245,6 +381,7 @@
         $('#discount').attr('onchange',
             `noMinus(this); maxValue(this, ${max})`)
     })
+
 
 
     $('#add-form').on('submit', function(e) {

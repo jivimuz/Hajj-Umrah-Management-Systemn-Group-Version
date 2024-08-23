@@ -2,14 +2,20 @@
 <div class="row">
     <div class="col-md-6">
         <div class="form-group">
+            <label class="">Branch Office: <span class="text-danger">*</span></label>
+            <select id="fk_branch" class="form-control" style="width: 100%" name="fk_branch" required>
+                @foreach ($branch as $i)
+                    <option value="{{ $i->id }}" {{ auth()->user()->fk_branch == $i->id ? 'selected' : '' }}>
+                        {{ $i->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="form-group">
             <label for="">Nama Jamaah: <span class="text-danger">*</span></label>
             <select id="jamaah" class="form-control select2modal " style="width: 100%">
                 <option value="" disabled selected>Select</option>
-                @foreach ($jamaah as $i)
-                    <option value="{{ $i->id }}" jname="{{ $i->nama }}">Nama: {{ $i->nama }} ||
-                        KTP:
-                        {{ $i->no_ktp }}</option>
-                @endforeach
+
             </select>
         </div>
         <div class="form-group isHide" hidden>
@@ -82,6 +88,87 @@
         tags: true
     })
 
+
+    $(document).ready(function() {
+        getJamaahList()
+    })
+
+    function getJamaahList() {
+        $('#jamaah').select2({
+            ajax: {
+                url: "<?= url('payment/getJamaahList') ?>",
+                method: 'POST',
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                delay: 250,
+                datatype: 'json',
+                data: function(params) {
+                    return {
+                        paramsVal: $('#jamaah').val(),
+                        paramsTitle: $('#jamaah option:selected').html(),
+                        paramsPrice: $('#jamaah').attr('price'),
+                        fk_branch: $('#fk_branch').val(),
+                        params: params.term
+                    }
+                },
+                processResults: function(response) {
+                    var option = [];
+                    let ckv = false;
+                    for (data of response.data) {
+                        if (data.id == response.val) {
+                            ckv = true;
+                        }
+                        var fdate = new Date(data.flight_date);
+                        let dOptions = {
+                            day: '2-digit',
+                            month: 'short',
+                            year: 'numeric'
+                        };
+
+                        option.push({
+                            text: "Nama : " + data.nama + " || KTP: " + data.no_ktp,
+                            id: data.id,
+                            jname: data.nama,
+                            jpaid: parseFloat(data.paid),
+                            jdiscount: parseFloat(data.discount),
+                            jprice: parseFloat(data.publish_price) + parseFloat(data.morepayment),
+                            jpaket: "☪️ " + (data.paket.length > 20 ? data.paket.substring(0, 20) +
+                                    "..." : data
+                                    .paket) + " || 🕌" + data.program + " || 🛫" + fdate
+                                .toLocaleDateString('en-GB', dOptions),
+                        })
+
+                    }
+
+                    if (!ckv) {
+                        option.push({
+                            text: response.title,
+                            id: response.val,
+                            price: response.price,
+                        })
+                    }
+                    return {
+                        results: option
+                    };
+                },
+                placeholder: 'get item no',
+                minimumInputLength: 2
+            },
+            dropdownParent: $('#ThisModal')
+
+        })
+    }
+
+    $('#fk_branch').change(function() {
+        $('#jamaah').html(`<option value="" disabled selected>Select</option>`);
+        getJamaahList()
+        $('.isHide').attr('hidden', true)
+    })
+    $('#jamaah').on('select2:select', function(e) {
+        $('#jamaah').attr('jname', e.params.data.jname)
+    })
+
     $('#jamaah').on('change', function() {
         $('.isHide').attr('hidden', false)
 
@@ -150,10 +237,11 @@
     })
 
     function pushData() {
+        var fk_branch = $('#fk_branch').val()
         var is_refund = $('#is_refund').val()
         var nominal = $('#nominal').val()
         var jamaah_id = $('#jamaah').val()
-        var jamaah_name = $("#jamaah option:selected").attr('jname');
+        var jamaah_name = $("#jamaah").attr('jname');
         var remark = $('#remark').val()
 
         if (!nominal || !jamaah_id || !jamaah_name || !remark) {
@@ -175,6 +263,7 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             data: {
+                fk_branch: fk_branch,
                 is_refund: is_refund,
                 jamaah_id: jamaah_id,
                 jamaah_name: jamaah_name,

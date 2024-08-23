@@ -91,14 +91,28 @@
                 class=" dropify editable" disabled id="attachment" name="attachment[]" disabled>
         </div>
 
-        @if ($total->total > 0)
-            <div class="col-md-3">
+        <div class="col-md-6">
+            <label class="form-label">Branch Office: <span class="text-danger">*</span></label>
+            <select id="fk_branch" class="form-control editable" style="width: 100%" name="fk_branch" disabled>
+                @if (auth()->user()->fk_branch == 0)
+                    <option value="0" {{ $data->fk_branch == 0 ? 'selected' : '' }}>All</option>
+                @endif
+                @foreach ($branch as $i)
+                    <option value="{{ $i->id }}" {{ $i->id == $data->fk_branch ? 'selected' : '' }}>
+                        {{ $i->name }}
+                    </option>
+                @endforeach
+            </select>
+
+            @if ($total->total > 0)
                 <div class="form-group">
                     <label for="">Jamaah Registered:</label>
                     <input type="text" value="{{ $total->total }}" disabled class="form-control ">
                 </div>
-            </div>
-        @endif
+            @endif
+        </div>
+
+
 
     </div>
     <div class="float-end" id="isHide" hidden>

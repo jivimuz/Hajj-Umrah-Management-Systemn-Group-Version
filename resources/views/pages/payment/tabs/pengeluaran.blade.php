@@ -1,22 +1,28 @@
 <div class="row">
     <input type="number" hidden id="is_refund" value="1">
-    <div class="col-md-6" hidden>
+    <div class="col-md-6">
         <div class="form-group">
             <input type="number" hidden id="jamaah" value="0">
-            {{-- <label for="">Nama Jamaah: <span class="text-danger">*</span></label> --}}
-            {{-- <select id="jamaah" class="form-control select2modal " style="width: 100%">
-                <option value="" disabled selected>Select</option>
-            </select> --}}
+            <div class="form-group">
+                <label class="">Branch Office: <span class="text-danger">*</span></label>
+                <select id="fk_branch" class="form-control" style="width: 100%" name="fk_branch" required>
+                    @foreach ($branch as $i)
+                        <option value="{{ $i->id }}" {{ auth()->user()->fk_branch == $i->id ? 'selected' : '' }}>
+                            {{ $i->name }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
         </div>
     </div>
     <div class="col-md-6">
         <div class="form-group">
             <label for="">Nominal Bayar: <span class="text-danger">*</span></label>
-            <input type="number" class="form-control" id="nominal" onchange="`noMinus(this);" placeholder="Nominal"
+            <input type="number" class="form-control" id="nominal" onchange="noMinus(this);" placeholder="Nominal"
                 inputmode="numeric">
         </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-12   ">
         <div class="form-group ">
             <label for="">Remark: <span class="text-danger">*</span></label>
             <textarea class="form-control" id="remark" rows="3"></textarea>
@@ -61,6 +67,7 @@
 
 
     function pushData() {
+        var fk_branch = $('#fk_branch').val()
         var is_refund = $('#is_refund').val()
         var nominal = $('#nominal').val()
         var remark = $('#remark').val()
@@ -84,6 +91,7 @@
                 'X-CSRF-TOKEN': '{{ csrf_token() }}'
             },
             data: {
+                fk_branch: fk_branch,
                 is_refund: is_refund,
                 jamaah_id: 0,
                 jamaah_name: 'Out Transaction',

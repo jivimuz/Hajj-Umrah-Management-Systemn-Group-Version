@@ -16,7 +16,8 @@ class PaymentController extends Controller
 {
     public function index()
     {
-        return view('pages/payment/index');
+        $branch = $this->branch;
+        return view('pages/payment/index', compact('branch'));
     }
 
     public function getList(Request $request)
@@ -24,20 +25,33 @@ class PaymentController extends Controller
         $monthYear = $request->month; // '2024-08'
         list($year, $month) = explode('-', $monthYear);
 
-        $data = Payment::select(['t_payment.*', 't_jamaah.nama as jamaah', 'm_agen.nama as agen', 'm_paket.nama as paket'])
+        $data = Payment::select(['t_payment.*', 't_jamaah.nama as jamaah', 'm_agen.nama as agen', 'm_branch.name as branch', 'm_paket.nama as paket'])
             ->leftJoin('t_jamaah', 't_jamaah.id', 't_payment.jamaah_id')
             ->leftJoin('m_agen', 'm_agen.id', 't_payment.agen_id')
             ->leftJoin('m_paket', 'm_paket.id', 't_jamaah.paket_id')
+            ->join('m_branch', "m_branch.id", "t_payment.fk_branch")
             ->whereYear('paid_at', $year)
             ->whereMonth('paid_at', $month)
-            ->orderBy('t_payment.id', 'desc')->get();
+            ->orderBy('t_payment.id', 'desc');
+
+        if ($request->branch_id > 0) {
+            $data->where('t_payment.fk_branch', $request->branch_id);
+        }
+
+        $data = $data->get();
 
         return response()->json(["message" => 'success', 'data' => $data], 200);
     }
 
     public function add()
     {
-        $jamaah = Jamaah::select([
+        $branch = $this->branch;
+        return view('pages/payment/add', compact('branch'));
+    }
+
+    public function getJamaahList(Request $request)
+    {
+        $data = Jamaah::select([
             't_jamaah.*',
             'm_paket.nama as paket',
             'm_paket.publish_price',
@@ -48,24 +62,33 @@ class PaymentController extends Controller
         ])
             ->join('m_paket', 't_jamaah.paket_id', 'm_paket.id')
             ->join('m_program', 'm_paket.program_id', 'm_program.id')
-            ->where('t_jamaah.is_done', false)->get();
-        return view('pages/payment/add', compact('jamaah'));
+            ->where('t_jamaah.is_done', false);
+        if ($request->fk_branch > 0) {
+            $data->where('m_paket.fk_branch', $request->fk_branch);
+        }
+        if ($request->params) {
+            $data->where('t_jamaah.nama', 'like  ', "%$request->params%");
+        }
+        $data = $data->get();
+        return response()->json(["message" => 'success', 'data' => $data, 'val' => $request->paramsVal ?: null, 'title' => $request->paramsTitle ?: null, 'price' => $request->paramsPrice ?: null], 200);
     }
 
     public function outTransaction()
     {
-        return view('pages/payment/tabs-out');
+        $branch = $this->branch;
+        return view('pages/payment/tabs-out', compact('branch'));
     }
 
     public function pengeluaran()
     {
-        return view('pages/payment/tabs/pengeluaran');
+        $branch = $this->branch;
+        return view('pages/payment/tabs/pengeluaran', compact('branch'));
     }
 
     public function refund()
     {
-        $jamaah = Jamaah::where('is_firstpaid', true)->get();
-        return view('pages/payment/tabs/refund', compact('jamaah'));
+        $branch = $this->branch;
+        return view('pages/payment/tabs/refund', compact('branch'));
     }
 
     public function getJamaahHistory(Request $request)
@@ -87,6 +110,7 @@ class PaymentController extends Controller
             $insert = false;
             if ($request->is_refund == 1) {
                 $insert = Payment::insert([
+                    'fk_branch' =>  $request->fk_branch ?: 0,
                     'agen_id' =>  $request->agen_id ?: 0,
                     'jamaah_id' => $request->jamaah_id ?: 0,
                     'jamaah_name' => $request->jamaah_name ?: '-',
@@ -100,6 +124,7 @@ class PaymentController extends Controller
                 ]);
             } else {
                 $insert = Payment::insert([
+                    'fk_branch' =>  $request->fk_branch ?: 0,
                     'agen_id' =>  $request->agen_id ?: 0,
                     'jamaah_id' => $request->jamaah_id ?: 0,
                     'jamaah_name' => $request->jamaah_name ?: '-',
@@ -192,8 +217,8 @@ class PaymentController extends Controller
 
     public function feeAgen()
     {
-        $agen = Agen::where('is_active', true)->get();
-        return view('pages/payment/tabs/feeAgent', compact('agen'));
+        $branch = $this->branch;
+        return view('pages/payment/tabs/feeAgent', compact('branch'));
     }
 
 
@@ -204,7 +229,7 @@ class PaymentController extends Controller
             DB::raw("(SELECT COALESCE(COUNT(id), 0) as tjamaah FROM t_jamaah where t_jamaah.agen_id = m_agen.id) as tjamaah"),
             DB::raw("(SELECT COALESCE(SUM(nominal), 0) as paid FROM t_payment where t_payment.agen_id = m_agen.id and t_payment.void_by IS NULL) as paidFee"),
         ])
-            ->join(DB::raw("(SELECT COALESCE(SUM(publish_price - basic_price), 0) as fee,agen_id,paket_id, m_paket.nama as paket  FROM t_jamaah join m_paket on m_paket.id = t_jamaah.paket_id where agen_id = '$request->id' and publish_price - basic_price > 0 group by agen_id,paket_id, m_paket.nama) as dt"), 'dt.agen_id', 'm_agen.id')
+            ->leftJoin(DB::raw("(SELECT COALESCE(SUM(publish_price - basic_price), 0) as fee,agen_id,paket_id, m_paket.nama as paket  FROM t_jamaah join m_paket on m_paket.id = t_jamaah.paket_id where agen_id = '$request->id' group by agen_id,paket_id, m_paket.nama) as dt"), 'dt.agen_id', 'm_agen.id')
             ->where('m_agen.id', $request->id)->get();
 
 

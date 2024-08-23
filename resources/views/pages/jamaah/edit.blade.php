@@ -9,9 +9,20 @@
             </div>
         </div>
         <div class="col-md-3">
+            <label class="">Branch Office: <span class="text-danger">*</span></label>
+            <select id="fk_branch" class="form-control" style="width: 100%" name="fk_branch" disabled>
+                @foreach ($branch as $i)
+                    <option value="{{ $i->id }}" {{ $paket->fk_branch == $i->id ? 'selected' : '' }}>
+                        {{ $i->name }}
+                    </option>
+                @endforeach
+            </select>
+        </div>
+        <div class="col-md-3">
             <div class="form-group">
                 <label for="">Paket: <span class="text-danger">*</span></label>
-                <select id="paket" name="paket" readonly class="form-control  select2modal " style="width: 100%">
+                <input type="text" hidden id="paket" name="paket" value="{{ $paket->id }}">
+                <select readonly class="form-control  select2modal " style="width: 100%" disabled>
                     <option value="{{ $paket->id }}" selected>
                         ☪️ {{ strlen($paket->nama) > 20 ? substr($paket->nama, 0, 20) . '...' : $paket->nama }} ||
                         🕌 {{ $paket->program }}
@@ -21,7 +32,7 @@
             </div>
         </div>
 
-        <div class="col-md-2">
+        <div class="col-md-3">
             <div class="form-group">
                 <label for="">Discount: (Rp.)</label>
                 <input type="number" class="form-control editable"
@@ -30,7 +41,7 @@
                     value="{{ $data->discount }}" {{ $data->is_firstpaid ? 'readonly' : 'disabled' }}>
             </div>
         </div>
-        <div class="col-md-2">
+        <div class="col-md-3">
             <div class="form-group">
                 <label for="">L/P: <span class="text-danger">*</span></label>
                 <select id="gender" name="gender" class="form-control select2modal editable" style="width: 100%"
@@ -42,7 +53,7 @@
             </div>
         </div>
 
-        <div class="col-md-2">
+        <div class="col-md-3">
             <div class="form-group">
                 <label for="">No Ktp : <span class="text-danger">*</span></label>
                 <input type="number" disabled class="form-control editable" inputmode="numeric"
@@ -105,41 +116,7 @@
                 </div>
             </div>
         </div>
-        <div class="col-md-3">
-            <div class="form-group">
-                <label for="">Vaccine 3</label>
-                <div class="input-group mb-3">
-                    <input type="text" class="form-control editable" disabled value="{{ $data->vaccine3 }}"
-                        placeholder="..." id="vaccine3" name="vaccine3">
-                    <input type="date" class="form-control editable" disabled value="{{ $data->vaccine3_date }}"
-                        id="vaccine3_date" name="vaccine3_date">
-                </div>
-            </div>
-        </div>
-        <div class="col-md-3">
-            <div class="form-group">
-                <label for="">Agen yang mendaftarkan: <span class="text-danger">*</span></label>
-                <select id="agen_id" name="agen_id" disabled class="form-control editable select2modal "
-                    style="width: 100%">
-                    <option value="" selected>Select</option>
-                    <option value="0" {{ $data->agen_id == 0 ? 'selected' : '' }}>No Agent</option>
-                    @foreach ($agen as $i)
-                        <option value="{{ $i->id }}" {{ $i->id == $data->agen_id ? 'selected' : '' }}>
-                            {{ $i->nama }} || {{ $i->no_ktp }}
-                        </option>
-                    @endforeach
-                </select>
-            </div>
-        </div>
 
-
-        <div class="col-md-6">
-            <div class="form-group">
-                <label for="">Alamat : </label>
-                <textarea id="alamat" name="alamat" disabled class="form-control editable" maxlength="200" rows="4"
-                    placeholder="Alamat">{{ $data->alamat }}</textarea>
-            </div>
-        </div>
         <div class="col-md-6">
 
             <div class="row">
@@ -175,10 +152,32 @@
 
             </div>
         </div>
-        <div class="col-md-6">
-            <label for="">Image: </label>
-            <input type="file" accept="image/*" data-default-file="{{ $data->attachment }}"
-                class=" dropify editable" disabled id="attachment" name="attachment[]">
+
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="">Vaccine 3</label>
+                <div class="input-group mb-3">
+                    <input type="text" class="form-control editable" disabled value="{{ $data->vaccine3 }}"
+                        placeholder="..." id="vaccine3" name="vaccine3">
+                    <input type="date" class="form-control editable" disabled value="{{ $data->vaccine3_date }}"
+                        id="vaccine3_date" name="vaccine3_date">
+                </div>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="form-group">
+                <label for="">Agen yang mendaftarkan: <span class="text-danger">*</span></label>
+                <select id="agen_id" name="agen_id" disabled class="form-control editable select2modal "
+                    style="width: 100%">
+                    <option value="" selected>Select</option>
+                    <option value="0" {{ $data->agen_id == 0 ? 'selected' : '' }}>No Agent</option>
+                    @foreach ($agen as $i)
+                        <option value="{{ $i->id }}" {{ $i->id == $data->agen_id ? 'selected' : '' }}>
+                            {{ $i->nama }} || {{ $i->no_ktp }}
+                        </option>
+                    @endforeach
+                </select>
+            </div>
         </div>
 
         @if ($isHaji)
@@ -213,8 +212,22 @@
                 </div>
             </div>
         @endif
+        <div class="col-md-6">
+            <div class="form-group">
+                <label for="">Alamat : </label>
+                <textarea id="alamat" name="alamat" disabled class="form-control editable" maxlength="200" rows="4"
+                    placeholder="Alamat">{{ $data->alamat }}</textarea>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <label for="">Image: </label>
+            <input type="file" accept="image/*" data-default-file="{{ $data->attachment }}"
+                class=" dropify editable" disabled id="attachment" name="attachment[]">
+        </div>
+
 
     </div>
+    <br>
     <div class="float-end" id="isHide" hidden>
         <a class="btn btn-sm btn-outline-warning rounded-pill" onclick="isView(true)">
 

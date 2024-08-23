@@ -95,6 +95,8 @@ Route::middleware(['auth'])->group(function () {
         Route::post('saveAddBiaya', [JamaahController::class, 'saveAddBiaya']);
         Route::post('deleteMorePayment', [JamaahController::class, 'deleteMorePayment']);
         Route::post('jamaahListByParams', [JamaahController::class, 'jamaahListByParams']);
+        Route::post('getAgenList', [JamaahController::class, 'getAgenList']);
+        Route::post('getPaketList', [JamaahController::class, 'getPaketList']);
     });
 
     Route::middleware(['checkAccess:PAY'])->prefix('payment')->group(function () {
@@ -108,6 +110,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('refund', [PaymentController::class, 'refund']);
         Route::post('saveData', [PaymentController::class, 'saveData']);
         Route::post('cancelPayment', [PaymentController::class, 'cancelPayment']);
+        Route::post('getJamaahList', [PaymentController::class, 'getJamaahList']);
         Route::post('getAgenFee', [PaymentController::class, 'getAgenFee']);
         Route::post('getAgenHistory', [PaymentController::class, 'getAgenHistory']);
     });

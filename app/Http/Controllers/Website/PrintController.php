@@ -18,7 +18,8 @@ class PrintController extends Controller
     public function index()
     {
         $users = Employee::all();
-        return view('print/index', compact('users'));
+        $branch = $this->branch;
+        return view('print/index', compact('users', 'branch'));
     }
 
     public function kwitansi($id)

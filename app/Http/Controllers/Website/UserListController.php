@@ -22,22 +22,31 @@ class UserListController extends Controller
 {
     public function index()
     {
-        return view('pages/user_list/index');
+        $branch = $this->branch;
+        return view('pages/user_list/index', compact('branch'));
     }
 
-    public function getList()
+    public function getList(Request $request)
     {
         $data = User::select([
             'm_users.id',
             'm_employee.fullname',
+            'm_branch.name as branch',
             DB::raw("coalesce(m_designation.name, '-') as designation"),
             DB::raw("coalesce(m_department.name, '-') as department"),
             'm_users.is_active',
         ])
             ->join('m_employee', "m_users.id", "m_employee.fk_user")
+            ->join('m_branch', "m_branch.id", "m_users.fk_branch")
             ->leftJoin('m_designation', "m_designation.id", "m_employee.fk_designation")
             ->leftJoin('m_department', "m_department.id", "m_designation.fk_department")
-            ->whereNot('m_users.id', 1)->get();
+            ->whereNot('m_users.id', 1);
+
+        if ($request->branch_id > 0) {
+            $data->where('m_users.fk_branch', $request->branch_id);
+        }
+
+        $data = $data->get();
         return response()->json(["message" => 'success', 'data' => $data], 200);
     }
 
@@ -53,7 +62,8 @@ class UserListController extends Controller
         $ptkp = Ptkp::get();
         $rl = Religion::get();
         $bk = Bank::get();
-        return view('pages/user_list/add', compact('top', 'jl', 'jt', 'ds', 'ms', 'ptkp', 'rl', 'bk'));
+        $branch = $this->branch;
+        return view('pages/user_list/add', compact('top', 'jl', 'jt', 'ds', 'ms', 'ptkp', 'rl', 'bk', 'branch'));
     }
 
     public function edit(Request $request)
@@ -68,7 +78,9 @@ class UserListController extends Controller
         $ptkp = Ptkp::get();
         $rl = Religion::get();
         $bk = Bank::get();
-        return view('pages/user_list/edit', compact('user', 'data', 'jl', 'jt', 'ds', 'ms', 'ptkp', 'rl', 'bk', 'id'));
+        $branch = $this->branch;
+
+        return view('pages/user_list/edit', compact('user', 'data', 'jl', 'jt', 'ds', 'ms', 'ptkp', 'rl', 'bk', 'id', 'branch'));
     }
 
     public function cekEmail(Request $request)
@@ -92,6 +104,7 @@ class UserListController extends Controller
             $id =  User::insertGetID([
                 'username' => $request->email,
                 'email' => $request->email,
+                'fk_branch' => $request->fk_branch,
                 'email_verified_at' => now(),
                 'password' =>  Hash::make($request->pwd),
                 'remember_token' => Str::random(10),
@@ -134,12 +147,15 @@ class UserListController extends Controller
     {
         try {
             DB::beginTransaction();
+            $updateData = [
+                'fk_branch' => $request->fk_branch,
+            ];
 
             if ($request->pwd) {
-                User::where('id', $request->id)->update([
-                    'password' =>  Hash::make($request->pwd),
-                ],);
+                $updateData['password'] = Hash::make($request->pwd);
             }
+
+            User::where('id', $request->id)->update($updateData);
 
             Employee::where('fk_user', $request->id)->update([
                 'nik' => $request->nik,

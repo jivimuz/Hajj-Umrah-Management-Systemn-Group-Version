@@ -16,7 +16,8 @@ class JamaahController extends Controller
 {
     public function index()
     {
-        return view('pages/jamaah/index');
+        $branch = $this->branch;
+        return view('pages/jamaah/index', compact('branch'));
     }
 
     public function getList(Request $request)
@@ -26,32 +27,67 @@ class JamaahController extends Controller
             't_jamaah.*',
             'm_paket.nama as paket',
             'm_paket.type',
+            'm_branch.name as branch',
             DB::raw("COALESCE(m_paket.publish_price,0) as price"),
             DB::raw("(SELECT COALESCE(SUM(nominal), 0) as paid FROM t_payment where t_payment.jamaah_id = t_jamaah.id and t_payment.void_by IS NULL) as paid"),
             DB::raw("(SELECT COALESCE(SUM(nominal), 0) as total FROM t_morepayment where t_morepayment.jamaah_id = t_jamaah.id) as morepayment")
         ])
             ->join('m_paket', 'm_paket.id', 't_jamaah.paket_id')
+            ->join('m_branch', "m_branch.id", "m_paket.fk_branch")
             ->when($type, function ($q) use ($type) {
                 return $q->where('m_paket.type', $type);
             })
-            ->orderBy('id', 'desc')->get();
+            ->orderBy('id', 'desc');
+
+        if ($request->branch_id > 0) {
+            $data->where('m_paket.fk_branch', $request->branch_id);
+        }
+
+        $data = $data->get();
         return response()->json(["message" => 'success', 'data' => $data], 200);
     }
 
     public function addUmrah()
     {
-        $paket = Paket::select(['m_paket.*', 'm_program.nama as program'])->join('m_program', 'm_program.id', 'm_paket.program_id')->where('m_paket.type', 'Umrah')->where('flight_date', '>=', date('Y-m-d'))->get();
-        $agen = Agen::where('is_active', true)->get();
+
         $isHaji = false;
-        return view('pages/jamaah/add', compact('paket', 'agen', 'isHaji'));
+        $branch = $this->branch;
+        return view('pages/jamaah/add', compact('isHaji', 'branch'));
     }
 
     public function addHaji()
     {
-        $paket = Paket::select(['m_paket.*', 'm_program.nama as program'])->join('m_program', 'm_program.id', 'm_paket.program_id')->where('m_paket.type', 'Haji')->where('flight_date', '>=', date('Y-m-d'))->get();
-        $agen = Agen::where('is_active', true)->get();
+
         $isHaji = true;
-        return view('pages/jamaah/add', compact('paket', 'agen', 'isHaji'));
+        $branch = $this->branch;
+        return view('pages/jamaah/add', compact('isHaji', 'branch'));
+    }
+
+    public function getAgenList(Request $request)
+    {
+        $data = Agen::select(['m_agen.*'])->where('is_active', true);
+        if ($request->fk_branch > 0) {
+            $data->where('m_agen.fk_branch', $request->fk_branch);
+        }
+        if ($request->params) {
+            $data->where('m_agen.nama', 'like  ', "%$request->params%");
+        }
+        $data = $data->get();
+        return response()->json(["message" => 'success', 'data' => $data, 'val' => $request->paramsVal ?: null, 'title' => $request->paramsTitle ?: null, 'price' => $request->paramsPrice ?: null], 200);
+    }
+
+
+    public function getPaketList(Request $request)
+    {
+        $data = Paket::select(['m_paket.*', 'm_program.nama as program'])->join('m_program', 'm_program.id', 'm_paket.program_id')->join('m_branch', "m_branch.id", "m_paket.fk_branch")->where('m_paket.type', ($request->isHaji ? 'Haji' : 'Umrah'))->where('flight_date', '>=', date('Y-m-d'));
+        if ($request->fk_branch > 0) {
+            $data->where('m_paket.fk_branch', $request->fk_branch);
+        }
+        if ($request->params) {
+            $data->where('m_paket.nama', 'like  ', "%$request->params%");
+        }
+        $data = $data->get();
+        return response()->json(["message" => 'success', 'data' => $data, 'val' => $request->paramsVal ?: null, 'title' => $request->paramsTitle ?: null, 'price' => $request->paramsPrice ?: null], 200);
     }
 
     public function saveData(Request $request)
@@ -123,9 +159,10 @@ class JamaahController extends Controller
         $id = $request->id;
         $data = Jamaah::where('id', $request->id)->first();
         $paket = Paket::select(['m_paket.*', 'm_program.nama as program'])->join('m_program', 'm_program.id', 'm_paket.program_id')->where('m_paket.id', $data->paket_id)->first();
-        $agen = Agen::where('is_active', true)->get();
-        $isHaji = $request->isHaji ?: false;
-        return view('pages/jamaah/edit', compact('data', 'id', 'paket', 'agen', 'isHaji'));
+        $agen = Agen::where('is_active', true)->where('fk_branch', $paket->fk_branch)->get();
+        $isHaji = (int) $request->isHaji;
+        $branch = $this->branch;
+        return view('pages/jamaah/edit', compact('data', 'id', 'paket', 'agen', 'isHaji', 'branch'));
     }
 
 
@@ -299,10 +336,17 @@ class JamaahController extends Controller
 
     public function jamaahListByParams(Request $request)
     {
-        $data = Jamaah::where('nama', 'like', '%' . $request->params . '%')
-            ->orWhere('nama', 'like', '%' . $request->params . '%')
-            ->limit(20)
-            ->get();
+        $data = Jamaah::select('t_jamaah.*')
+            ->join('m_paket', 'm_paket.id', 't_jamaah.paket_id')
+            ->join('m_branch', "m_branch.id", "m_paket.fk_branch")
+            ->where('t_jamaah.nama', 'like', '%' . $request->params . '%')
+            ->limit(20);
+
+        if ($request->fk_branch > 0) {
+            $data->where('m_paket.fk_branch', $request->fk_branch);
+        }
+
+        $data = $data->get();
         $selectTitle = $request->selectTitle ?: null;
         $selectVal = $request->selectVal ?: null;
 
