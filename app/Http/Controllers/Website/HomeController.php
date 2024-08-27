@@ -53,7 +53,7 @@ class HomeController extends Controller
                 ->whereMonth('t_jamaah.created_at', sprintf('%02s', $i))
                 ->whereYear('t_jamaah.created_at', date('Y'));
             if ($request->branch_id > 0) {
-                $cek->where('t_jamaah.fk_branch', $request->branch_id);
+                $cek->where('m_paket.fk_branch', $request->branch_id);
             }
 
             $cek = $cek->first();
@@ -69,7 +69,7 @@ class HomeController extends Controller
                 ->whereMonth('t_jamaah.created_at', sprintf('%02s', $i))
                 ->whereYear('t_jamaah.created_at', date('Y'));
             if ($request->branch_id > 0) {
-                $cek->where('t_jamaah.fk_branch', $request->branch_id);
+                $cek->where('m_paket.fk_branch', $request->branch_id);
             }
             $cek = $cek->first();
 
@@ -101,7 +101,7 @@ class HomeController extends Controller
                 ->whereMonth('t_jamaah.created_at', sprintf('%02s', $i))
                 ->whereYear('t_jamaah.created_at', date('Y'));
             if ($request->branch_id > 0) {
-                $cek->where('t_jamaah.fk_branch', $request->branch_id);
+                $cek->where('m_paket.fk_branch', $request->branch_id);
             }
             $cek = $cek->first();
 
@@ -116,7 +116,7 @@ class HomeController extends Controller
                 ->whereMonth('t_jamaah.created_at', sprintf('%02s', $i))
                 ->whereYear('t_jamaah.created_at', date('Y'));
             if ($request->branch_id > 0) {
-                $cek->where('t_jamaah.fk_branch', $request->branch_id);
+                $cek->where('m_paket.fk_branch', $request->branch_id);
             }
             $cek = $cek->first();
             array_push($jp, ($cek ? $cek->total : 0));
@@ -189,7 +189,7 @@ class HomeController extends Controller
             ->orderBy('m_paket.flight_date', 'asc');
 
         if ($request->branch_id > 0) {
-            $data->where('t_jamaah.fk_branch', $request->branch_id);
+            $data->where('m_paket.fk_branch', $request->branch_id);
         }
 
         $data = $data->get();
