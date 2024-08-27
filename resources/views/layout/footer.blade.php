@@ -171,7 +171,7 @@
 
  <script>
      function changePass() {
-         showModal('expiredAlert');
+         showModal('changePass');
      }
 
      $('#submitPass').on('click', function() {
