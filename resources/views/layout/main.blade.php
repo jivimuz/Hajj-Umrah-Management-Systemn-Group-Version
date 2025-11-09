@@ -12,7 +12,7 @@ $logo = Setting::where('parameter', 'company_logo')->first()->value ?: 'Logo';
 <link rel="shortcut icon" href="{{ url($logo) }}" />
 
 <body class="  "
-    style="background:url(../assets/images/dashboard.png);    background-attachment: fixed;
+    style="background:url({{ url('') }}/assets/images/dashboard.png);    background-attachment: fixed;
     background-size: cover;">
     <!-- loader Start -->
     <div id="loading">

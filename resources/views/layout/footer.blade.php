@@ -96,40 +96,40 @@
 
 
  <!-- Required Library Bundle Script -->
- <script src="../assets/js/core/libs.min.js"></script>
+ <script src="{{ url('') }}/assets/js/core/libs.min.js"></script>
 
  <!-- External Library Bundle Script -->
- <script src="../assets/js/core/external.min.js"></script>
+ <script src="{{ url('') }}/assets/js/core/external.min.js"></script>
 
  <!-- Widgetchart JavaScript -->
- {{-- <script src="../assets/js/charts/admin.js"></script> --}}
+ {{-- <script src="{{ url('')}}/assets/js/charts/admin.js"></script> --}}
 
  <!-- fslightbox JavaScript -->
- <script src="../assets/js/fslightbox.js"></script>
+ <script src="{{ url('') }}/assets/js/fslightbox.js"></script>
 
  <!-- GSAP Animation -->
- <script src="../assets/vendor/gsap/gsap.min.js"></script>
- <script src="../assets/vendor/gsap/ScrollTrigger.min.js"></script>
- <script src="../assets/js/animation/gsap-init.js"></script>
+ <script src="{{ url('') }}/assets/vendor/gsap/gsap.min.js"></script>
+ <script src="{{ url('') }}/assets/vendor/gsap/ScrollTrigger.min.js"></script>
+ <script src="{{ url('') }}/assets/js/animation/gsap-init.js"></script>
 
  <!-- Stepper Plugin -->
- <script src="../assets/js/stepper.js"></script>
+ <script src="{{ url('') }}/assets/js/stepper.js"></script>
 
  <!-- Form Wizard Script -->
 
  <!-- app JavaScript -->
- <script src="../assets/js/app.js"></script>
+ <script src="{{ url('') }}/assets/js/app.js"></script>
 
  <!-- moment JavaScript -->
- <script src="../assets/vendor/moment.min.js"></script>
- <script src="../assets/js/jquery.min.js"></script>
- <script src="../assets/js/datatables.min.js"></script>
+ <script src="{{ url('') }}/assets/vendor/moment.min.js"></script>
+ <script src="{{ url('') }}/assets/js/jquery.min.js"></script>
+ <script src="{{ url('') }}/assets/js/datatables.min.js"></script>
 
- <script src="../assets/js/sweetalert2.min.js"></script>
- <script src="../assets/js/select2.min.js"></script>
- <script src="../assets/js/responsive.dataTables.min.js"></script>
- <script src="../assets/js/dropify.min.js"></script>
- <script src="../assets/js/customFunction.js"></script>
+ <script src="{{ url('') }}/assets/js/sweetalert2.min.js"></script>
+ <script src="{{ url('') }}/assets/js/select2.min.js"></script>
+ <script src="{{ url('') }}/assets/js/responsive.dataTables.min.js"></script>
+ <script src="{{ url('') }}/assets/js/dropify.min.js"></script>
+ <script src="{{ url('') }}/assets/js/customFunction.js"></script>
  @if (session('expiredAlert'))
      <script>
          $(document).ready(function() {

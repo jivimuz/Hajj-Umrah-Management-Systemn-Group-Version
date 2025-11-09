@@ -5,18 +5,12 @@ use Illuminate\Support\Facades\Request;
 
 $AccessList = explode(',', auth()->user()->access);
 
-$logo = Setting::where('parameter', 'company_logo')->first()->value ?: 'Logo';
+$logo = Setting::where('parameter', 'company_logo')->first()->value ?: asset('assets/images/logo.png');
 $app_name = Setting::where('parameter', 'app_name')->first()->value ?: 'AppName';
 $menu = [];
 $menuList = Module::where('isheader', 1)->where('isactive', true)->orderBy('list_no', 'asc')->get();
 foreach ($menuList as $i) {
-    $submenu = Module::where('isheader', 0)
-        ->where('group_id', $i->group_id)
-        ->whereIn('id', $AccessList)
-        ->whereNot('id', $i->id)
-        ->where('isactive', true)
-        ->orderBy('list_no', 'asc')
-        ->get();
+    $submenu = Module::where('isheader', 0)->where('group_id', $i->group_id)->whereIn('id', $AccessList)->whereNot('id', $i->id)->where('isactive', true)->orderBy('list_no', 'asc')->get();
 
     if (count($submenu) > 0 || in_array($i->id, $AccessList)) {
         $menu[] = [
@@ -83,7 +77,7 @@ $currentRouteName = Request::getPathInfo();
                             @foreach ($b['child'] as $c)
                                 <li class="nav-item">
                                     <a class="nav-link {{ $c['route'] == $currentRouteName ? 'active' : '' }}"
-                                        href="{{ $c['route'] }}">
+                                        href="{{ url($c['route']) }}">
                                         <i class="sidenav-mini-icon">{{ substr($c['name'], 0, 1) }}</i>
                                         <span class="item-name">{{ $c['name'] }}</span>
                                     </a>
@@ -94,7 +88,7 @@ $currentRouteName = Request::getPathInfo();
                     <?php }else{?>
                     <li class="nav-item">
                         <a class="nav-link {{ $b['route'] == $currentRouteName ? 'active' : '' }}"
-                            href="{{ $b['route'] }}">
+                            href="{{ url($b['route']) }}">
                             <i class="{{ $b['icon'] }}" style="font-size: 23px">
                             </i>
                             <span class="item-name">{{ $b['name'] }}</span>

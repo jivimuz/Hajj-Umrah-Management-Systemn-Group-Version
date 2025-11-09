@@ -7,7 +7,7 @@ $cek = DB::table('m_designation')
     ->first();
 $LoginDesignation = $cek ? $cek->name : '-';
 
-$logo = Setting::where('parameter', 'company_logo')->first()->value ?: 'Logo';
+$logo = Setting::where('parameter', 'company_logo')->first()->value ?: asset('assets/images/logo.png');
 $app_name = Setting::where('parameter', 'app_name')->first()->value ?: 'AppName';
 $company_name = Setting::where('parameter', 'company_name')->first()->value ?: 'Company Name';
 
@@ -85,7 +85,7 @@ $company_name = Setting::where('parameter', 'company_name')->first()->value ?: '
                                         <a href="#" class="iq-sub-card">
                                             <div class="d-flex align-items-center">
                                                 {{-- <img class="avatar-40 rounded-pill" --}}
-                                                {{-- src="../assets/images/layouts/04.png" alt=""> --}}
+                                                {{-- src="{{ url('')}}/assets/images/layouts/04.png" alt=""> --}}
                                                 <div class="w-100 ms-3">
                                                     <h6 class="mb-0 ">New Mail from Fenny</h6>
                                                     <div class="d-flex justify-content-between align-items-center">
@@ -102,7 +102,7 @@ $company_name = Setting::where('parameter', 'company_name')->first()->value ?: '
                         <li class="nav-item dropdown">
                             <a class="nav-link py-0 d-flex align-items-center" href="#" id="navbarDropdown"
                                 role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                <img src="../assets/images/avatars/01.png" alt="User-Profile"
+                                <img src="{{ url('') }}/assets/images/avatars/01.png" alt="User-Profile"
                                     class="img-fluid avatar avatar-50 avatar-rounded">
                                 <div class="caption ms-3 d-none d-md-block text-center">
                                     <h6 class="mb-0 caption-title">{{ $LoginName }}</h6>
