@@ -16,11 +16,11 @@ $app_name = Setting::where('parameter', 'app_name')->first()->value ?: 'AppName'
     <link rel="shortcut icon" href="{{ $logo ?: url('assets/images/logo.png') }}" />
 
     <!-- Library / Plugin Css Build -->
-    <link rel="stylesheet" href="assets/css/core/libs.min.css">
-    <link rel="stylesheet" href="assets/css/sweetalert2.min.css">
+    <link rel="stylesheet" href="{{ url('') }}/assets/css/core/libs.min.css">
+    <link rel="stylesheet" href="{{ url('') }}/assets/css/sweetalert2.min.css">
 
     <!-- Custom Css -->
-    <link rel="stylesheet" href="assets/css/aprycot.mine209.css?v=1.0.0">
+    <link rel="stylesheet" href="{{ url('') }}/assets/css/aprycot.mine209.css?v=1.0.0">
 </head>
 
 <body class=" " data-bs-spy="scroll" data-bs-target="#elements-section" data-bs-offset="0" tabindex="0">
@@ -97,41 +97,41 @@ $app_name = Setting::where('parameter', 'app_name')->first()->value ?: 'AppName'
         </div>
     </footer>
     <!-- Required Library Bundle Script -->
-    <script src="assets/js/core/libs.min.js"></script>
+    <script src="{{ url('') }}/assets/js/core/libs.min.js"></script>
 
     <!-- External Library Bundle Script -->
-    <script src="assets/js/core/external.min.js"></script>
+    <script src="{{ url('') }}/assets/js/core/external.min.js"></script>
 
     <!-- Widgetchart JavaScript -->
-    <script src="assets/js/charts/widgetcharts.js"></script>
+    <script src="{{ url('') }}/assets/js/charts/widgetcharts.js"></script>
 
     <!-- Mapchart JavaScript -->
-    <script src="assets/js/charts/vectore-chart.js"></script>
-    <script src="assets/js/charts/dashboard.js"></script>
+    <script src="{{ url('') }}/assets/js/charts/vectore-chart.js"></script>
+    <script src="{{ url('') }}/assets/js/charts/dashboard.js"></script>
 
     <!-- Admin Dashboard Chart -->
-    <script src="assets/js/charts/admin.js"></script>
+    <script src="{{ url('') }}/assets/js/charts/admin.js"></script>
 
     <!-- fslightbox JavaScript -->
-    <script src="assets/js/fslightbox.js"></script>
+    <script src="{{ url('') }}/assets/js/fslightbox.js"></script>
 
     <!-- GSAP Animation -->
-    <script src="assets/vendor/gsap/gsap.min.js"></script>
-    <script src="assets/vendor/gsap/ScrollTrigger.min.js"></script>
-    <script src="assets/js/animation/gsap-init.js"></script>
+    <script src="{{ url('') }}/assets/vendor/gsap/gsap.min.js"></script>
+    <script src="{{ url('') }}/assets/vendor/gsap/ScrollTrigger.min.js"></script>
+    <script src="{{ url('') }}/assets/js/animation/gsap-init.js"></script>
 
     <!-- Stepper Plugin -->
-    <script src="assets/js/stepper.js"></script>
+    <script src="{{ url('') }}/assets/js/stepper.js"></script>
 
     <!-- Form Wizard Script -->
-    <script src="assets/js/form-wizard.js"></script>
+    <script src="{{ url('') }}/assets/js/form-wizard.js"></script>
 
     <!-- app JavaScript -->
-    <script src="assets/js/app.js"></script>
+    <script src="{{ url('') }}/assets/js/app.js"></script>
 
     <!-- moment JavaScript -->
-    <script src="assets/vendor/moment.min.js"></script>
-    <script src="assets/js/sweetalert2.min.js"></script>
+    <script src="{{ url('') }}/assets/vendor/moment.min.js"></script>
+    <script src="{{ url('') }}/assets/js/sweetalert2.min.js"></script>
 
 </body>
 <script>
