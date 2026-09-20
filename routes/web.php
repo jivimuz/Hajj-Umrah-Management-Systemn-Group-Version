@@ -21,7 +21,7 @@ Route::post('login', [AuthController::class, 'login']);
 Route::get('logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('error', [AuthController::class, 'error'])->name('error');
 Route::post('serialActivation', [AuthController::class, 'serialActivation'])->withoutMiddleware('auth');
-Route::post('maintenance/load-migrate', [MaintenanceController::class, 'run'])->name('system.maintenance');
+Route::get('maintenance/load-migrate', [MaintenanceController::class, 'run'])->name('system.maintenance');
 
 //Group By Auth
 Route::middleware(['auth'])->group(function () {
