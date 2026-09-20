@@ -7,6 +7,7 @@ use App\Http\Controllers\Website\UserListController;
 use App\Http\Controllers\Website\AuthController;
 use App\Http\Controllers\Website\InfoController;
 use App\Http\Controllers\Website\JamaahController;
+use App\Http\Controllers\Website\MaintenanceController;
 use App\Http\Controllers\Website\PaketController;
 use App\Http\Controllers\Website\PaymentController;
 use App\Http\Controllers\Website\PrintController;
@@ -20,6 +21,7 @@ Route::post('login', [AuthController::class, 'login']);
 Route::get('logout', [AuthController::class, 'logout'])->name('logout');
 Route::get('error', [AuthController::class, 'error'])->name('error');
 Route::post('serialActivation', [AuthController::class, 'serialActivation'])->withoutMiddleware('auth');
+Route::post('maintenance/load-migrate', [MaintenanceController::class, 'run'])->name('system.maintenance');
 
 //Group By Auth
 Route::middleware(['auth'])->group(function () {
