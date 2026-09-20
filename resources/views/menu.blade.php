@@ -334,22 +334,35 @@
                 }, 2000);
             })
 
+            const dashboardCharts = {};
+
             function renderChart(elementId, data) {
+                const chartElement = document.querySelector(elementId);
+                if (!chartElement || typeof ApexCharts === 'undefined') {
+                    return;
+                }
+
+                if (dashboardCharts[elementId]) {
+                    dashboardCharts[elementId].destroy();
+                }
+
+                const maleData = data.jl.map(Number);
+                const femaleData = data.jp.map(Number);
+                const totalData = data.tt.map(Number);
                 const options = {
                     series: [{
                             type: 'column',
                             name: 'Laki-laki',
-                            data: data.jl,
+                            data: maleData,
                         }, {
                             type: 'column',
                             name: 'Perempuan',
-                            data: data.jp
+                            data: femaleData
                         },
                         {
                             type: 'line',
-                            curve: 'smooth',
-                            name: 'higher',
-                            data: data.tt
+                            name: 'Total tertinggi',
+                            data: totalData
                         }
                     ],
                     chart: {
@@ -379,28 +392,16 @@
                         enabled: true,
                     },
                     stroke: {
-                        width: [0, 2]
+                        curve: 'smooth',
+                        width: [0, 0, 3]
                     },
                     dataLabels: {
-                        enabled: true,
-                        enabledOnSeries: [1],
-                        offsetX: 3.0,
-                        offsetY: -1.6,
+                        enabled: false,
                         style: {
-                            fontSize: '1px',
+                            fontSize: '11px',
                             fontFamily: 'Helvetica, Arial, sans-serif',
                             fontWeight: 'bold',
                         },
-                        background: {
-                            enabled: true,
-                            foreColor: '#fff',
-                            color: '#fff',
-                            padding: 10,
-                            borderRadius: 10,
-                            borderWidth: 0,
-                            borderColor: '#fff',
-                            opacity: 1,
-                        }
                     },
                     colors: ["#ECC812", "#EA6A12", "#8EEC12"],
                     plotOptions: {
@@ -412,9 +413,8 @@
                         },
                     },
                     legend: {
-                        show: false,
-                        offsetY: -25,
-                        offsetX: -5
+                        show: true,
+                        position: 'top',
                     },
                     xaxis: {
                         categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
@@ -424,6 +424,8 @@
                         }
                     },
                     yaxis: {
+                        min: 0,
+                        forceNiceScale: true,
                         labels: {
                             minWidth: 20,
                             maxWidth: 20,
@@ -431,8 +433,8 @@
                     },
                 };
 
-                const chart = new ApexCharts(document.querySelector(elementId), options);
-                chart.render();
+                dashboardCharts[elementId] = new ApexCharts(chartElement, options);
+                dashboardCharts[elementId].render();
             }
 
             function LoadPage() {

@@ -82,6 +82,11 @@ Route::middleware(['auth'])->group(function () {
 
     Route::middleware(['checkAccess:JMA'])->prefix('jamaah')->group(function () {
         Route::get('/', [JamaahController::class, 'index']);
+        Route::get('dokumen', [JamaahController::class, 'documentsIndex']);
+        Route::post('dokumen/getList', [JamaahController::class, 'getDocumentList']);
+        Route::post('dokumen/form', [JamaahController::class, 'documentForm']);
+        Route::post('dokumen/save', [JamaahController::class, 'saveDocument']);
+        Route::get('dokumen/preview/{document}', [JamaahController::class, 'previewDocument'])->name('jamaah.documents.preview');
         Route::post('getList', [JamaahController::class, 'getList']);
         Route::post('addUmrah', [JamaahController::class, 'addUmrah']);
         Route::post('addHaji', [JamaahController::class, 'addHaji']);
@@ -128,6 +133,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('manifest/{id}', [PrintController::class, 'manifest']);
         Route::get('monthlyReport', [PrintController::class, 'monthlyReport']);
         Route::get('jamaahInfo/{id}', [PrintController::class, 'jamaahInfo']);
+        Route::get('jamaahDocuments/{id}', [PrintController::class, 'jamaahDocuments']);
         Route::get('surat_rekomendasi/{id}', [PrintController::class, 'suratRekomendasi']);
         Route::get('surat_ijin/{id}', [PrintController::class, 'suratIjin']);
     });

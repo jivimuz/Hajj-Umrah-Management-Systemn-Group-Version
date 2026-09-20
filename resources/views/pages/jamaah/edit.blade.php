@@ -219,6 +219,80 @@
                     placeholder="Alamat">{{ $data->alamat }}</textarea>
             </div>
         </div>
+        <div class="col-md-3"><label>Tanggal Daftar <span class="text-danger">*</span></label><input type="date"
+                class="form-control editable" name="tanggal_daftar"
+                value="{{ $data->tanggal_daftar ?: $data->regis_date ?: date('Y-m-d') }}" required disabled></div>
+        <div class="col-md-3"><label>No. KK</label><input type="text" class="form-control editable"
+                name="no_kk" value="{{ $data->no_kk }}" maxlength="16" disabled></div>
+        <div class="col-md-3"><label>Desa/Kelurahan</label><input type="text" class="form-control editable"
+                name="desa_kelurahan" value="{{ $data->desa_kelurahan }}" maxlength="100" disabled></div>
+        <div class="col-md-3"><label>Kecamatan</label><input type="text" class="form-control editable"
+                name="kecamatan" value="{{ $data->kecamatan }}" maxlength="100" disabled></div>
+        <div class="col-md-3"><label>Kabupaten/Kota</label><input type="text" class="form-control editable"
+                name="kabupaten_kota" value="{{ $data->kabupaten_kota }}" maxlength="100" disabled></div>
+        <div class="col-md-3"><label>Provinsi</label><input type="text" class="form-control editable"
+                name="provinsi" value="{{ $data->provinsi }}" maxlength="100" disabled></div>
+        <div class="col-md-3"><label>Kode Pos</label><input type="text" class="form-control editable"
+                name="kode_pos" value="{{ $data->kode_pos }}" maxlength="10" disabled></div>
+        <div class="col-md-3"><label>Email</label><input type="email" class="form-control editable" name="email"
+                value="{{ $data->email }}" maxlength="150" disabled></div>
+        <div class="col-md-3"><label>Status Pernikahan</label><select class="form-control editable"
+                name="status_pernikahan" disabled>
+                <option value="">Pilih</option>
+                <option {{ $data->status_pernikahan == 'Belum Menikah' ? 'selected' : '' }}>Belum Menikah</option>
+                <option {{ $data->status_pernikahan == 'Menikah' ? 'selected' : '' }}>Menikah</option>
+                <option {{ $data->status_pernikahan == 'Cerai Hidup' ? 'selected' : '' }}>Cerai Hidup</option>
+                <option {{ $data->status_pernikahan == 'Cerai Mati' ? 'selected' : '' }}>Cerai Mati</option>
+            </select></div>
+        <div class="col-md-3"><label>Pendidikan</label><input type="text" class="form-control editable"
+                name="pendidikan" value="{{ $data->pendidikan }}" maxlength="100" disabled></div>
+        <div class="col-md-3"><label>Pekerjaan</label><input type="text" class="form-control editable"
+                name="pekerjaan" value="{{ $data->pekerjaan }}" maxlength="100" disabled></div>
+        <div class="col-md-3"><label>Gol. Darah</label><select class="form-control editable" name="gol_darah"
+                disabled>
+                <option value="">Pilih</option>
+                <option {{ $data->gol_darah == 'A' ? 'selected' : '' }}>A</option>
+                <option {{ $data->gol_darah == 'B' ? 'selected' : '' }}>B</option>
+                <option {{ $data->gol_darah == 'AB' ? 'selected' : '' }}>AB</option>
+                <option {{ $data->gol_darah == 'O' ? 'selected' : '' }}>O</option>
+            </select></div>
+        <div class="col-md-3"><label class="d-block">Paspor</label>
+            <div class="form-check mt-2"><input class="form-check-input editable" type="checkbox"
+                    name="sudah_memiliki_paspor" value="1" id="sudah_memiliki_paspor"
+                    {{ $data->sudah_memiliki_paspor ? 'checked' : '' }} disabled><label class="form-check-label"
+                    for="sudah_memiliki_paspor">Sudah memiliki paspor</label></div>
+        </div>
+        <div class="col-md-6"><label>Kebutuhan Khusus</label>
+            <textarea class="form-control editable" name="kebutuhan_khusus" rows="2" disabled>{{ $data->kebutuhan_khusus ?: 'Tidak Ada' }}</textarea>
+        </div>
+        <div class="col-md-3"><label>Nama Kontak Darurat</label><input type="text" class="form-control editable"
+                name="nama_kontak_darurat" value="{{ $data->nama_kontak_darurat }}" maxlength="100" disabled></div>
+        <div class="col-md-3"><label>Hubungan</label><input type="text" class="form-control editable"
+                name="hubungan_kontak_darurat" value="{{ $data->hubungan_kontak_darurat }}" maxlength="50" disabled>
+        </div>
+        <div class="col-md-3"><label>No. HP Darurat</label><input type="text" class="form-control editable"
+                name="no_hp_darurat" value="{{ $data->no_hp_darurat }}" maxlength="20" disabled></div>
+        <div class="col-md-3"><label>Tanggal Keberangkatan</label><input type="date" class="form-control editable"
+                name="tanggal_keberangkatan" value="{{ $data->tanggal_keberangkatan }}" disabled></div>
+        <div class="col-md-3"><label>Status Pendaftaran</label><select class="form-control editable"
+                name="status_pendaftaran" disabled>
+                <option {{ $data->status_pendaftaran == 'Terdaftar' ? 'selected' : '' }}>Terdaftar</option>
+                <option {{ $data->status_pendaftaran == 'Proses Dokumen' ? 'selected' : '' }}>Proses Dokumen</option>
+                <option {{ $data->status_pendaftaran == 'Siap Berangkat' ? 'selected' : '' }}>Siap Berangkat</option>
+                <option {{ $data->status_pendaftaran == 'Berangkat' ? 'selected' : '' }}>Berangkat</option>
+                <option {{ $data->status_pendaftaran == 'Selesai' ? 'selected' : '' }}>Selesai</option>
+                <option {{ $data->status_pendaftaran == 'Batal' ? 'selected' : '' }}>Batal</option>
+            </select></div>
+        <div class="col-md-3"><label>Pembayaran</label><select class="form-control editable" name="status_pembayaran"
+                disabled>
+                <option value="">Belum Bayar</option>
+                <option {{ $data->status_pembayaran == 'DP' ? 'selected' : '' }}>DP</option>
+                <option {{ $data->status_pembayaran == 'Cicilan' ? 'selected' : '' }}>Cicilan</option>
+                <option {{ $data->status_pembayaran == 'Lunas' ? 'selected' : '' }}>Lunas</option>
+            </select></div>
+        <div class="col-md-6"><label>Keterangan</label>
+            <textarea class="form-control editable" name="keterangan" rows="2" disabled>{{ $data->keterangan }}</textarea>
+        </div>
         <div class="col-md-6">
             <label for="">Image: </label>
             <input type="file" accept="image/*" data-default-file="{{ $data->attachment }}"

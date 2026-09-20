@@ -114,6 +114,16 @@ use App\Helpers\WebHelper;
                         Rp {{ number_format($data->discount ?: 0, 2) }} </td>
                 </tr>
                 <tr>
+                    <td style="width: 15%">Jumlah Pembayaran</td>
+                    <td style="width: 1%">:</td>
+                    <td style="width: 35%" style=" border: 1px solid grey;padding-left:10px">
+                        {{ $paymentCount }} kali</td>
+                    <td style="width: 15%">Total Tagihan</td>
+                    <td style="width: 1%">:</td>
+                    <td style="width: 35%" style=" border: 1px solid grey;padding-left:10px">
+                        Rp {{ number_format($totalBill, 2) }} </td>
+                </tr>
+                <tr>
                     <td style="width: 15%">Alamat</td>
                     <td style="width: 1%">:</td>
                     <td style="width: 35%" style=" border: 1px solid grey;padding-left:10px">
@@ -141,7 +151,7 @@ use App\Helpers\WebHelper;
                     <td style="width: 15%">Sisa </td>
                     <td style="width: 1%">:</td>
                     <td style="width: 35%" style=" border: 1px solid grey;padding-left:10px">
-                        Rp {{ number_format($data->price + $data->morepayment - $data->paid ?: 0, 2) }} </td>
+                        Rp {{ number_format($remaining, 2) }} </td>
                 </tr>
                 <tr>
                     <td style="width: 15%"></td>

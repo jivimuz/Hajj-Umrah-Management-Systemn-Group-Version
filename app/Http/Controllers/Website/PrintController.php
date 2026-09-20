@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Website;
 use App\Http\Controllers\Controller;
 use App\Models\Employee;
 use App\Models\Jamaah;
+use App\Models\JamaahDocument;
 use App\Models\Paket;
 use App\Models\Payment;
 use App\Models\Setting;
@@ -15,6 +16,24 @@ use Illuminate\Support\Facades\DB;
 
 class PrintController extends Controller
 {
+    private const DOCUMENT_TYPES = [
+        'Paspor',
+        'KTP',
+        'KK',
+        'Buku Nikah',
+        'Akte Kelahiran',
+        'Foto',
+        'Vaksin/Kesehatan',
+        'Sertifikat Vaksin Meningitis',
+        'Surat Keterangan Sehat',
+        'Bukti Pendaftaran',
+        'Dokumen Tambahan',
+        'Dokumen Haji',
+        'Bukti Setoran Awal',
+        'Nomor Porsi',
+        'Bukti Pelunasan Haji',
+    ];
+
     public function index()
     {
         $users = Employee::all();
@@ -30,8 +49,8 @@ class PrintController extends Controller
             echo "Error Unique code";
         }
 
-        $id =  htmlspecialchars($decodedId, ENT_QUOTES, 'UTF-8');
-        $data = Payment::select(['t_payment.*', 't_jamaah.nama as jamaah', 'm_agen.nama as agen',  'm_paket.nama as paket'])
+        $id = htmlspecialchars($decodedId, ENT_QUOTES, 'UTF-8');
+        $data = Payment::select(['t_payment.*', 't_jamaah.nama as jamaah', 'm_agen.nama as agen', 'm_paket.nama as paket'])
             ->leftJoin('m_agen', 'm_agen.id', 't_payment.agen_id')
             ->leftJoin('t_jamaah', 't_jamaah.id', 't_payment.jamaah_id')
             ->leftJoin('m_paket', 'm_paket.id', 't_jamaah.paket_id')
@@ -42,7 +61,7 @@ class PrintController extends Controller
         $caddress = Setting::where('parameter', 'company_address')->first()->value ?: '';
         $clogo = Setting::where('parameter', 'company_logo')->first()->value ?: '';
 
-        $pdf = PDF::loadView('print/kwitansi', array('data' =>  $data, 'cname' => $cname, 'caddress' => $caddress, 'clogo' => $clogo))
+        $pdf = PDF::loadView('print/kwitansi', array('data' => $data, 'cname' => $cname, 'caddress' => $caddress, 'clogo' => $clogo))
             ->setPaper('a5', 'landscape');
 
         return $pdf->stream();
@@ -56,7 +75,7 @@ class PrintController extends Controller
             echo "Error Unique code";
         }
 
-        $id =  htmlspecialchars($decodedId, ENT_QUOTES, 'UTF-8');
+        $id = htmlspecialchars($decodedId, ENT_QUOTES, 'UTF-8');
 
         $paket = Paket::select([
             'm_paket.*',
@@ -81,7 +100,7 @@ class PrintController extends Controller
         $caddress = Setting::where('parameter', 'company_address')->first()->value ?: '';
         $clogo = Setting::where('parameter', 'company_logo')->first()->value ?: '';
 
-        $pdf = PDF::loadView('print/manifest', array('data' =>  $data, 'paket' => $paket, 'cname' => $cname, 'caddress' => $caddress, 'clogo' => $clogo))
+        $pdf = PDF::loadView('print/manifest', array('data' => $data, 'paket' => $paket, 'cname' => $cname, 'caddress' => $caddress, 'clogo' => $clogo))
             ->setPaper('a4', 'landscape');
 
         return $pdf->stream();
@@ -105,7 +124,7 @@ class PrintController extends Controller
         $caddress = Setting::where('parameter', 'company_address')->first()->value ?: '';
         $clogo = Setting::where('parameter', 'company_logo')->first()->value ?: '';
 
-        $pdf = PDF::loadView('print/monthlyReport', array('data' =>  $data, 'cname' => $cname, 'caddress' => $caddress, 'clogo' => $clogo, 'monthYear' => $monthYear))
+        $pdf = PDF::loadView('print/monthlyReport', array('data' => $data, 'cname' => $cname, 'caddress' => $caddress, 'clogo' => $clogo, 'monthYear' => $monthYear))
             ->setPaper('a4', 'landscape');
 
         return $pdf->stream();
@@ -115,13 +134,13 @@ class PrintController extends Controller
     {
         $decodedId = base64_decode($id);
         $decodedBy = $request->by ? base64_decode($request->by) : auth()->user()->id;
-        $iduser =  htmlspecialchars($decodedBy, ENT_QUOTES, 'UTF-8');
+        $iduser = htmlspecialchars($decodedBy, ENT_QUOTES, 'UTF-8');
 
         if ($decodedId === false) {
             echo "Error Unique code";
         }
 
-        $id =  htmlspecialchars($decodedId, ENT_QUOTES, 'UTF-8');
+        $id = htmlspecialchars($decodedId, ENT_QUOTES, 'UTF-8');
         $data = Jamaah::select([
             't_jamaah.*',
             'm_paket.nama as paket',
@@ -144,14 +163,62 @@ class PrintController extends Controller
             ->where('t_jamaah.id', $id)
             ->orderBy('t_payment.id', 'desc')->get();
 
+        $totalBill = max(0, (float) $data->price - (float) $data->discount + (float) $data->morepayment);
+        $remaining = max(0, $totalBill - (float) $data->paid);
+
         $cname = Setting::where('parameter', 'company_name')->first()->value ?: '';
         $caddress = Setting::where('parameter', 'company_address')->first()->value ?: '';
         $clogo = Setting::where('parameter', 'company_logo')->first()->value ?: '';
         $employee = Employee::select('m_employee.*', 'm_designation.name as jabatan')->join('m_designation', 'm_employee.fk_designation', 'm_designation.id')->where('m_employee.id', $iduser)->first();
         $ccity = Setting::where('parameter', 'company_city')->first()->value ?: '';
 
-        $pdf = PDF::loadView('print/jamaahInfo', array('data' =>  $data, 'history' =>  $history, 'cname' => $cname, 'caddress' => $caddress, 'clogo' => $clogo, 'ccity' => $ccity, 'employee' => $employee))
+        $pdf = PDF::loadView('print/jamaahInfo', array('data' => $data, 'history' => $history, 'paymentCount' => $history->count(), 'totalBill' => $totalBill, 'remaining' => $remaining, 'cname' => $cname, 'caddress' => $caddress, 'clogo' => $clogo, 'ccity' => $ccity, 'employee' => $employee))
             ->setPaper('a5', 'landscape');
+
+        return $pdf->stream();
+    }
+
+    public function jamaahDocuments($id)
+    {
+        $decodedId = base64_decode($id, true);
+        abort_if($decodedId === false, 404);
+
+        $jamaah = Jamaah::select([
+            't_jamaah.*',
+            'm_paket.nama as paket',
+            'm_paket.type',
+            'm_program.nama as program',
+        ])
+            ->join('m_paket', 'm_paket.id', 't_jamaah.paket_id')
+            ->join('m_program', 'm_program.id', 'm_paket.program_id')
+            ->where('t_jamaah.id', $decodedId)
+            ->firstOrFail();
+
+        $requiredTypes = array_filter(self::DOCUMENT_TYPES, function ($type) use ($jamaah) {
+            return $jamaah->type === 'Haji' || !in_array($type, [
+                'Dokumen Haji',
+                'Bukti Setoran Awal',
+                'Nomor Porsi',
+                'Bukti Pelunasan Haji',
+            ], true);
+        });
+        $documents = JamaahDocument::where('jamaah_id', $jamaah->id)
+            ->whereIn('document_type', $requiredTypes)
+            ->get()
+            ->keyBy('document_type');
+
+        $cname = Setting::where('parameter', 'company_name')->first()->value ?: '';
+        $caddress = Setting::where('parameter', 'company_address')->first()->value ?: '';
+        $clogo = Setting::where('parameter', 'company_logo')->first()->value ?: '';
+
+        $pdf = PDF::loadView('print/jamaahDocuments', [
+            'data' => $jamaah,
+            'documents' => $documents,
+            'documentTypes' => $requiredTypes,
+            'cname' => $cname,
+            'caddress' => $caddress,
+            'clogo' => $clogo,
+        ])->setPaper('a4', 'portrait');
 
         return $pdf->stream();
     }
@@ -165,7 +232,7 @@ class PrintController extends Controller
             echo "Error Unique code";
         }
 
-        $id =  htmlspecialchars($decodedId, ENT_QUOTES, 'UTF-8');
+        $id = htmlspecialchars($decodedId, ENT_QUOTES, 'UTF-8');
         $data = Jamaah::select([
             't_jamaah.*',
             'm_paket.nama as paket',
@@ -182,7 +249,7 @@ class PrintController extends Controller
             ->where('t_jamaah.id', $id)
             ->first();
 
-        $iduser =  htmlspecialchars($decodedBy, ENT_QUOTES, 'UTF-8');
+        $iduser = htmlspecialchars($decodedBy, ENT_QUOTES, 'UTF-8');
         $employee = Employee::select('m_employee.*', 'm_designation.name as jabatan')->join('m_designation', 'm_employee.fk_designation', 'm_designation.id')->where('m_employee.id', $iduser)->first();
 
         $cname = Setting::where('parameter', 'company_name')->first()->value ?: '';
@@ -194,7 +261,7 @@ class PrintController extends Controller
             'value' => $no_surat
         ]);
 
-        $pdf = PDF::loadView('print/suratRekomendasi', array('data' =>  $data, 'employee' =>  $employee, 'cname' => $cname, 'caddress' => $caddress, 'clogo' => $clogo, 'ccity' => $ccity, 'no_surat' => $no_surat))
+        $pdf = PDF::loadView('print/suratRekomendasi', array('data' => $data, 'employee' => $employee, 'cname' => $cname, 'caddress' => $caddress, 'clogo' => $clogo, 'ccity' => $ccity, 'no_surat' => $no_surat))
             ->setPaper('a5', 'potrait');
 
         return $pdf->stream();
@@ -210,7 +277,7 @@ class PrintController extends Controller
             echo "Error Unique code";
         }
 
-        $id =  htmlspecialchars($decodedId, ENT_QUOTES, 'UTF-8');
+        $id = htmlspecialchars($decodedId, ENT_QUOTES, 'UTF-8');
         $data = Jamaah::select([
             't_jamaah.*',
             'm_paket.nama as paket',
@@ -228,7 +295,7 @@ class PrintController extends Controller
             ->where('t_jamaah.id', $id)
             ->first();
 
-        $iduser =  htmlspecialchars($decodedBy, ENT_QUOTES, 'UTF-8');
+        $iduser = htmlspecialchars($decodedBy, ENT_QUOTES, 'UTF-8');
         $employee = Employee::select('m_employee.*', 'm_designation.name as jabatan')->join('m_designation', 'm_employee.fk_designation', 'm_designation.id')->where('m_employee.id', $iduser)->first();
 
         $cname = Setting::where('parameter', 'company_name')->first()->value ?: '';
@@ -240,7 +307,7 @@ class PrintController extends Controller
             'value' => $no_surat
         ]);
 
-        $pdf = PDF::loadView('print/suratIjin', array('data' =>  $data, 'employee' =>  $employee, 'cname' => $cname, 'caddress' => $caddress, 'clogo' => $clogo, 'ccity' => $ccity, 'no_surat' => $no_surat, 'to' =>  $to))
+        $pdf = PDF::loadView('print/suratIjin', array('data' => $data, 'employee' => $employee, 'cname' => $cname, 'caddress' => $caddress, 'clogo' => $clogo, 'ccity' => $ccity, 'no_surat' => $no_surat, 'to' => $to))
             ->setPaper('a5', 'potrait');
 
         return $pdf->stream();

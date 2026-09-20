@@ -10,7 +10,18 @@ $app_name = Setting::where('parameter', 'app_name')->first()->value ?: 'AppName'
 $menu = [];
 $menuList = Module::where('isheader', 1)->where('isactive', true)->orderBy('list_no', 'asc')->get();
 foreach ($menuList as $i) {
-    $submenu = Module::where('isheader', 0)->where('group_id', $i->group_id)->whereIn('id', $AccessList)->whereNot('id', $i->id)->where('isactive', true)->orderBy('list_no', 'asc')->get();
+    $submenu = Module::where('isheader', 0)
+        ->where('group_id', $i->group_id)
+        ->where(function ($query) use ($AccessList, $i) {
+            $query->whereIn('id', $AccessList);
+            if ($i->code === 'JMA' && in_array($i->id, $AccessList)) {
+                $query->orWhere('code', 'JMD');
+            }
+        })
+        ->whereNot('id', $i->id)
+        ->where('isactive', true)
+        ->orderBy('list_no', 'asc')
+        ->get();
 
     if (count($submenu) > 0 || in_array($i->id, $AccessList)) {
         $menu[] = [
@@ -74,6 +85,15 @@ $currentRouteName = Request::getPathInfo();
                             </i>
                         </a>
                         <ul class="sub-nav collapse" id="group-{{ $b['group_id'] }}" data-bs-parent="#sidebar">
+                            @if ($b['route'] !== '#')
+                                <li class="nav-item">
+                                    <a class="nav-link {{ $b['route'] == $currentRouteName ? 'active' : '' }}"
+                                        href="{{ url($b['route']) }}">
+                                        <i class="sidenav-mini-icon">{{ substr($b['name'], 0, 1) }}</i>
+                                        <span class="item-name">{{ $b['name'] }}</span>
+                                    </a>
+                                </li>
+                            @endif
                             @foreach ($b['child'] as $c)
                                 <li class="nav-item">
                                     <a class="nav-link {{ $c['route'] == $currentRouteName ? 'active' : '' }}"

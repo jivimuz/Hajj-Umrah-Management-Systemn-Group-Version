@@ -188,6 +188,75 @@
             </div>
         </div>
 
+        <div class="col-md-3"><label>Tanggal Daftar <span class="text-danger">*</span></label><input type="date"
+                class="form-control" name="tanggal_daftar" value="{{ date('Y-m-d') }}" required></div>
+        <div class="col-md-3"><label>No. KK</label><input type="text" class="form-control" name="no_kk"
+                maxlength="16" inputmode="numeric"></div>
+        <div class="col-md-3"><label>Desa/Kelurahan</label><input type="text" class="form-control"
+                name="desa_kelurahan" maxlength="100"></div>
+        <div class="col-md-3"><label>Kecamatan</label><input type="text" class="form-control" name="kecamatan"
+                maxlength="100"></div>
+        <div class="col-md-3"><label>Kabupaten/Kota</label><input type="text" class="form-control"
+                name="kabupaten_kota" maxlength="100"></div>
+        <div class="col-md-3"><label>Provinsi</label><input type="text" class="form-control" name="provinsi"
+                maxlength="100"></div>
+        <div class="col-md-3"><label>Kode Pos</label><input type="text" class="form-control" name="kode_pos"
+                maxlength="10" inputmode="numeric"></div>
+        <div class="col-md-3"><label>Email</label><input type="email" class="form-control" name="email"
+                maxlength="150"></div>
+        <div class="col-md-3"><label>Status Pernikahan</label><select class="form-control" name="status_pernikahan">
+                <option value="">Pilih</option>
+                <option>Belum Menikah</option>
+                <option>Menikah</option>
+                <option>Cerai Hidup</option>
+                <option>Cerai Mati</option>
+            </select></div>
+        <div class="col-md-3"><label>Pendidikan</label><input type="text" class="form-control" name="pendidikan"
+                maxlength="100"></div>
+        <div class="col-md-3"><label>Pekerjaan</label><input type="text" class="form-control" name="pekerjaan"
+                maxlength="100"></div>
+        <div class="col-md-3"><label>Gol. Darah</label><select class="form-control" name="gol_darah">
+                <option value="">Pilih</option>
+                <option>A</option>
+                <option>B</option>
+                <option>AB</option>
+                <option>O</option>
+            </select></div>
+        <div class="col-md-3"><label class="d-block">Paspor</label>
+            <div class="form-check mt-2"><input class="form-check-input" type="checkbox"
+                    name="sudah_memiliki_paspor" value="1" id="sudah_memiliki_paspor"><label
+                    class="form-check-label" for="sudah_memiliki_paspor">Sudah memiliki paspor</label></div>
+        </div>
+        <div class="col-md-6"><label>Kebutuhan Khusus</label>
+            <textarea class="form-control" name="kebutuhan_khusus" rows="2">Tidak Ada</textarea>
+        </div>
+        <div class="col-md-3"><label>Nama Kontak Darurat</label><input type="text" class="form-control"
+                name="nama_kontak_darurat" maxlength="100"></div>
+        <div class="col-md-3"><label>Hubungan</label><input type="text" class="form-control"
+                name="hubungan_kontak_darurat" maxlength="50"></div>
+        <div class="col-md-3"><label>No. HP Darurat</label><input type="text" class="form-control"
+                name="no_hp_darurat" maxlength="20"></div>
+        <div class="col-md-3"><label>Tanggal Keberangkatan</label><input type="date" class="form-control"
+                name="tanggal_keberangkatan"></div>
+        <div class="col-md-3"><label>Status Pendaftaran</label><select class="form-control"
+                name="status_pendaftaran">
+                <option selected>Terdaftar</option>
+                <option>Proses Dokumen</option>
+                <option>Siap Berangkat</option>
+                <option>Berangkat</option>
+                <option>Selesai</option>
+                <option>Batal</option>
+            </select></div>
+        <div class="col-md-3"><label>Pembayaran</label><select class="form-control" name="status_pembayaran">
+                <option value="">Belum Bayar</option>
+                <option>DP</option>
+                <option>Cicilan</option>
+                <option>Lunas</option>
+            </select></div>
+        <div class="col-md-6"><label>Keterangan</label>
+            <textarea class="form-control" name="keterangan" rows="2"></textarea>
+        </div>
+
         <div class="col-md-6">
             <label for="">Image: </label>
             <input type="file" accept="image/*" class=" dropify " id="attachment" name="attachment[]">

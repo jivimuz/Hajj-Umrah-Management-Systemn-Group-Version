@@ -36,10 +36,12 @@
                         <div class="row">
                             <div class="col-lg-3">
                                 <div class="form-group">
-                                    <label for="">Print Type</label>
+                                    <label for="">Print Type<span class="text-danger">*</span></label>
                                     <select class="select2" id="printType" style="width: 100%">
                                         <option value="" selected disabled>Choose One</option>
-                                        <option value="jamaahInfo" is-signature="1" is-to="0">Payment Information
+                                        <option value="jamaahInfo" is-signature="1" is-to="0">Rincian Pembayaran
+                                        </option>
+                                        <option value="jamaahDocuments" is-signature="0" is-to="0">Checklist Dokumen
                                         </option>
                                         <option value="surat_rekomendasi" is-signature="1" is-to="0">Surat Rekomendasi
                                             Passport

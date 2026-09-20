@@ -87,6 +87,8 @@
                                 <thead>
                                     <tr>
                                         <th>No</th>
+                                        <th>ID Jamaah</th>
+                                        <th>Tanggal Daftar</th>
                                         <th>Office</th>
                                         <th>Name</th>
                                         <th>Type</th>
@@ -128,6 +130,17 @@
                         return `${noD++}.`
                     },
                     className: 'text-center'
+                },
+                {
+                    data: "kode_jamaah",
+                    defaultContent: "-",
+                },
+                {
+                    data: "tanggal_daftar",
+                    defaultContent: "-",
+                    render: function(data) {
+                        return data ? new Date(data).toLocaleDateString('id-ID') : '-'
+                    }
                 },
                 {
                     data: "branch",
