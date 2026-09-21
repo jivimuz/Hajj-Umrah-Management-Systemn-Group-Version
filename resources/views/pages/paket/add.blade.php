@@ -85,9 +85,10 @@
         <div class="col-md-6">
             <label class="form-label">Branch Office: <span class="text-danger">*</span></label>
             <select id="fk_branch" class="form-control" style="width: 100%" name="fk_branch" required>
-                @if (auth()->user()->fk_branch == 0)
+                <option value="" disabled selected>Select One</option>
+                {{-- @if (auth()->user()->fk_branch == 0)
                     <option value="0">All</option>
-                @endif
+                @endif --}}
                 @foreach ($branch as $i)
                     <option value="{{ $i->id }}">{{ $i->name }}
                     </option>
